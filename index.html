@@ -1,325 +1,514 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dra.Cláusula</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f6f6f6;
-      padding: 40px; /* Padding padrão para telas maiores */
-      max-width: 600px;
-      margin: auto;
-    }
-
-    /* Estilo para a imagem - agora posicionada diretamente no corpo e centralizada */
-    .initial-image {
-        display: block; /* Para permitir margin: auto para centralização */
-        max-width: 100%; /* Garante que a imagem não ultrapasse a largura do contêiner */
-        height: auto; /* Mantém a proporção da imagem */
-        margin: 0 auto 30px auto; /* Centraliza a imagem e adiciona espaço abaixo */
-        border-radius: 10px; /* Mantém o estilo arredondado */
-        box-shadow: 0 0 15px rgba(0,0,0,0.15); /* Sombra um pouco mais proeminente */
-    }
-
-    /* Estilo para a seção de introdução */
-    .introduction {
-      background-color: #ffffff;
-      padding: 20px;
-      margin-bottom: 30px; /* Espaçamento entre a introdução e o formulário */
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .introduction p {
-      color: #555;
-      line-height: 1.6;
-      margin-bottom: 15px;
-    }
-
-    .introduction ul {
-      list-style: none; /* Remove marcadores de lista padrão */
-      padding: 0;
-      text-align: left; /* Alinha os itens da lista à esquerda */
-      margin: 0 auto; /* Centraliza a lista, se o .introduction tiver uma largura definida */
-      max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
-    }
-
-    .introduction ul li {
-      background-color: #eaf6ff; /* Cor de fundo suave para cada item da lista */
-      margin-bottom: 8px;
-      padding: 10px 15px;
-      border-radius: 5px;
-      border-left: 4px solid #3498db; /* Borda lateral para destaque */
-      color: #444;
-      font-size: 0.95em;
-    }
-
-    form {
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="file"],
-    select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    /* Style for validation error messages */
-    .error-message {
-        color: red;
-        font-size: 0.9em;
-        margin-top: 5px;
-        display: none; /* Hidden by default */
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 12px;
-      width: 100%;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease; /* Adicionado para efeito hover */
-    }
-
-    button:hover {
-      background-color: #2980b9;
-    }
-
-    /* Estilo para botão desabilitado */
-    button:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-    }
-
-    #mensagem-retorno {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #2c3e50;
-      text-align: center;
-    }
-
-    /* ======================================= */
-    /* MEDIA QUERIES - RESPONSIVIDADE             */
-    /* ======================================= */
-
-    /* Para telas menores que 768px (geralmente tablets e celulares) */
-    @media (max-width: 768px) {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dra.Cláusula</title>
+    <style>
         body {
-            padding: 15px; /* Reduz o padding do corpo para telas menores */
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            padding: 40px; /* Padding padrão para telas maiores */
+            max-width: 600px;
+            margin: auto;
         }
 
-        .introduction,
-        form {
-            padding: 15px; /* Reduz o padding interno das seções */
-        }
-    }
-
-    /* Para telas muito pequenas (celulares menores) */
-    @media (max-width: 480px) {
-        body {
-            padding: 10px; /* Padding ainda menor para telas muito pequenas */
-        }
-
+        /* Estilo para a imagem - agora posicionada diretamente no corpo e centralizada */
         .initial-image {
-            margin-bottom: 20px; /* Ajusta o espaçamento da imagem */
+            display: block; /* Para permitir margin: auto para centralização */
+            max-width: 100%; /* Garante que a imagem não ultrapasse a largura do contêiner */
+            height: auto; /* Mantém a proporção da imagem */
+            margin: 0 auto 30px auto; /* Centraliza a imagem e adiciona espaço abaixo */
+            border-radius: 10px; /* Mantém o estilo arredondado */
+            box-shadow: 0 0 15px rgba(0,0,0,0.15); /* Sombra um pouco mais proeminente */
         }
 
-        .introduction p,
-        .introduction ul li {
-            font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
+        /* Estilo para a seção de introdução */
+        .introduction {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 30px; /* Espaçamento entre a introdução e o formulário */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-    }
-  </style>
+
+        .introduction p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .introduction ul {
+            list-style: none; /* Remove marcadores de lista padrão */
+            padding: 0;
+            text-align: left; /* Alinha os itens da lista à esquerda */
+            margin: 0 auto; /* Centraliza a lista, se o .introduction tiver uma largura definida */
+            max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
+        }
+
+        .introduction ul li {
+            background-color: #eaf6ff; /* Cor de fundo suave para cada item da lista */
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db; /* Borda lateral para destaque */
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        /* Estilo para a chamada de ação da política de privacidade */
+        .privacy-call-to-action {
+            text-align: center;
+            margin-bottom: 30px; /* Espaço antes do formulário */
+        }
+
+        .privacy-button {
+            background-color: #5d9cec; /* Um tom de azul diferente */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .privacy-button:hover {
+            background-color: #4a89dc;
+        }
+
+        /* Estilo para a seção da política de privacidade */
+        .privacy-policy-section {
+            background-color: #ffffff;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .privacy-policy-section h2,
+        .privacy-policy-section h3 {
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .privacy-policy-section ul {
+            list-style-type: disc; /* Marcadores de lista padrão */
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .privacy-policy-section ul li {
+            background-color: transparent; /* Remove background dos itens da lista */
+            padding: 0;
+            border-left: none;
+            margin-bottom: 5px;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Style for validation error messages */
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none; /* Hidden by default */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px;
+            width: 100%;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Adicionado para efeito hover */
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Estilo para botão desabilitado */
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #mensagem-retorno {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        /* ======================================= */
+        /* MEDIA QUERIES - RESPONSIVIDADE          */
+        /* ======================================= */
+
+        /* Para telas menores que 768px (geralmente tablets e celulares) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px; /* Reduz o padding do corpo para telas menores */
+            }
+
+            .introduction,
+            form,
+            .privacy-policy-section { /* Adicionado para a nova seção */
+                padding: 15px; /* Reduz o padding interno das seções */
+            }
+        }
+
+        /* Para telas muito pequenas (celulares menores) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px; /* Padding ainda menor para telas muito pequenas */
+            }
+
+            .initial-image {
+                margin-bottom: 20px; /* Ajusta o espaçamento da imagem */
+            }
+
+            .introduction p,
+            .introduction ul li,
+            .privacy-policy-section p, /* Adicionado para a nova seção */
+            .privacy-policy-section ul li { /* Adicionado para a nova seção */
+                font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
+            }
+        }
+    </style>
 </head>
 <body>
-  <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
+    <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
 
-  <div class="introduction">
-    <p>
-      Sou a Dra. Cláusula, uma Inteligência Artificial avançada, desenvolvida para ser sua especialista em análise de contratos. Meu objetivo é proporcionar clareza e segurança jurídica em seus documentos, transformando a complexidade em informações claras e acionáveis.
-    </p>
-    <p>Com meus algoritmos, você obtém uma análise detalhada e imparcial do seu contrato, sob a perspectiva que você indicar. Nossa análise abrangente inclui:</p>
-    <ul>
-      <li>Identificação de **pontos positivos e negativos** específicos para sua posição no contrato.</li>
-      <li>Avaliação da **segurança das cláusulas de garantia** e cumprimento de obrigações.</li>
-      <li>Análise aprofundada do **tratamento de inadimplência e descumprimento** de termos.</li>
-      <li>**Sugestões de alterações** e inclusões de novas cláusulas para proteger seus interesses.</li>
-      <li>**Propostas de redação** para cláusulas substitutas, garantindo precisão jurídica.</li>
-    </ul>
-    <p>
-      Para iniciar sua análise, por favor, preencha o formulário abaixo.
-    </p>
-  </div>
+    <div class="introduction">
+        <p>
+            Sou a Dra. Cláusula, uma Inteligência Artificial avançada, desenvolvida para ser sua especialista em análise de contratos. Meu objetivo é proporcionar clareza e segurança jurídica em seus documentos, transformando a complexidade em informações claras e acionáveis.
+        </p>
+        <p>Com meus algoritmos, você obtém uma análise detalhada e imparcial do seu contrato, sob a perspectiva que você indicar. Nossa análise abrangente inclui:</p>
+        <ul>
+            <li>Identificação de **pontos positivos e negativos** específicos para sua posição no contrato.</li>
+            <li>Avaliação da **segurança das cláusulas de garantia** e cumprimento de obrigações.</li>
+            <li>Análise aprofundada do **tratamento de inadimplência e descumprimento** de termos.</li>
+            <li>**Sugestões de alterações** e inclusões de novas cláusulas para proteger seus interesses.</li>
+            <li>**Propostas de redação** para cláusulas substitutas, garantindo precisão jurídica.</li>
+        </ul>
+        <p>
+            Antes de iniciar à sua análise, por favor, confira nosso termo de confidencialidade.
+        </p>
+    </div>
 
-  <form id="formulario">
-    <label for="nome">Seu Nome:</label>
-    <input type="text" id="nome" name="nome" required>
+    <div class="privacy-call-to-action">
+      <p>
+        <button id="showPrivacyPolicyButton" class="privacy-button">
+          Confira nosso Termo de Confidencialidade
+        </button>
+      </p>
+    </div>
 
-    <label for="email">Seu E-mail:</label>
-    <input type="email" id="email" name="email" required>
-    <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
+    <div id="privacyPolicy" class="privacy-policy-section" style="display: none;">
+      <h2>Política de Privacidade e Termo de Confidencialidade</h2>
 
-    <label for="confirmEmail">Confirmar E-mail:</label>
-    <input type="email" id="confirmEmail" name="confirmEmail" required>
-    <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
+      <h3>1. Introdução</h3>
+      <p>Esta Política de Privacidade tem como objetivo informar como coletamos, utilizamos, armazenamos e protegemos seus dados pessoais e documentos enviados para análise contratual. Valorizamos a sua privacidade, a proteção dos seus dados e assumimos o compromisso com a confidencialidade das informações.</p>
+      <p>Ao utilizar nossos serviços, você concorda com os termos aqui descritos.</p>
 
-    <label for="parte">Qual o seu papel no contrato?</label>
-    <select id="parte" name="parte" required>
-      <option value="" selected disabled>Selecione uma opção...</option>
-      <option value="comprador">Comprador</option>
-      <option value="vendedor">Vendedor</option>
-      <option value="contratante">Contratante</option>
-      <option value="contratado">Contratado</option>
-      <option value="locador">Locador</option>
-      <option value="locatario">Locatário</option>
-      <option value="credor">Credor</option>
-      <option value="devedor">Devedor</option>
-      <option value="outorgante">Outorgante</option>
-      <option value="outorgado">Outorgado</option>
-      <option value="cessionario">Cessionário</option>
-      <option value="cedente">Cedente</option>
-    </select>
+      ---
 
-    <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
-    <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
+      <h3>2. Coleta de Dados</h3>
+      <p>Coletamos as seguintes informações quando você utiliza nosso site:</p>
+      <ul>
+        <li><strong>Dados pessoais:</strong> Nome, e-mail, telefone (se informado) e informações relacionadas à sua participação no contrato (ex.: comprador, vendedor, prestador, etc.);</li>
+        <li><strong>Documentos:</strong> Contratos, anexos e arquivos enviados voluntariamente para análise;</li>
+        <li><strong>Dados de navegação:</strong> Cookies, endereço IP, geolocalização e dados de interação com o site (para melhoria da experiência e segurança).</li>
+      </ul>
 
-    <button type="submit" id="submitButton">Enviar para Análise</button>
-  </form>
+      ---
 
-  <div id="mensagem-retorno"></div>
+      <h3>3. Finalidade do Tratamento de Dados</h3>
+      <p>Seus dados e documentos são utilizados exclusivamente para:</p>
+      <ul>
+        <li>Realizar a análise contratual conforme solicitado;</li>
+        <li>Gerar o parecer ou retorno da análise;</li>
+        <li>Cumprir obrigações legais e regulatórias, se aplicável;</li>
+        <li>Melhorar nossos serviços e sua experiência no site;</li>
+        <li>Enviar comunicações relacionadas aos nossos serviços (opcional e sempre com seu consentimento).</li>
+      </ul>
 
-  <script>
-    const formulario = document.getElementById("formulario");
-    const mensagem = document.getElementById("mensagem-retorno");
-    const emailInput = document.getElementById("email");
-    const emailError = document.getElementById("email-error");
-    const confirmEmailInput = document.getElementById("confirmEmail");
-    const confirmEmailError = document.getElementById("confirm-email-error");
-    const submitButton = document.getElementById("submitButton"); // Referência ao botão
+      ---
 
-    // Função para validar o formato do e-mail
-    function validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(String(email).toLowerCase());
-    }
+      <h3>4. Confidencialidade e Segurança das Informações</h3>
+      <p>Nos comprometemos a:</p>
+      <ul>
+        <li>Manter total sigilo sobre os documentos e dados fornecidos;</li>
+        <li>Não divulgar, compartilhar, vender ou repassar seus dados a terceiros, salvo quando exigido por lei;</li>
+        <li>Adotar medidas técnicas e administrativas capazes de proteger os dados pessoais e os documentos contra acessos não autorizados, vazamentos, alterações e destruição;</li>
+        <li>Armazenar os documentos apenas pelo tempo necessário para a prestação do serviço contratado ou para cumprimento de obrigações legais.</li>
+      </ul>
 
-    // Função para verificar se os e-mails coincidem
-    function doEmailsMatch() {
-        return emailInput.value === confirmEmailInput.value;
-    }
+      ---
 
-    // Event listener para o campo de e-mail principal
-    emailInput.addEventListener("input", function() {
-      if (emailInput.value.trim() === "") {
-        emailError.style.display = "none";
-      } else if (!validateEmail(emailInput.value)) {
-        emailError.style.display = "block";
-      } else {
-        emailError.style.display = "none";
-      }
+      <h3>5. Armazenamento e Eliminação dos Dados</h3>
+      <p>Seus dados e documentos ficam armazenados em ambiente seguro e controlado;</p>
+      <p>Após a conclusão da análise, os documentos poderão ser excluídos definitivamente, salvo se houver obrigação legal que exija sua retenção por período específico;</p>
+      <p>Você pode solicitar, a qualquer momento, a exclusão de seus dados e documentos.</p>
 
-      if (confirmEmailInput.value.trim() !== "") {
-          if (!doEmailsMatch()) {
-              confirmEmailError.style.display = "block";
-          } else {
-              confirmEmailError.style.display = "none";
-          }
-      }
-    });
+      ---
 
-    // Event listener para o campo de confirmação de e-mail
-    confirmEmailInput.addEventListener("input", function() {
-        if (confirmEmailInput.value.trim() === "") {
-            confirmEmailError.style.display = "none";
-        } else if (!doEmailsMatch()) {
-            confirmEmailError.style.display = "block";
-        } else {
-            confirmEmailError.style.display = "none";
-        }
-    });
+      <h3>6. Compartilhamento de Dados</h3>
+      <p>Não compartilhamos seus dados com terceiros, salvo nas seguintes hipóteses:</p>
+      <ul>
+        <li>Cumprimento de obrigações legais, regulatórias ou ordens judiciais;</li>
+        <li>Prestadores de serviços estritamente necessários para a operacionalização do site, que também estão contratualmente obrigados a manter sigilo e segurança dos dados.</li>
+      </ul>
 
-    formulario.addEventListener("submit", async function (e) {
-      e.preventDefault();
+      ---
 
-      if (!validateEmail(emailInput.value)) {
-        emailError.style.display = "block";
-        mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
-        mensagem.style.color = "red";
-        return;
-      } else {
-        emailError.style.display = "none";
-      }
+      <h3>7. Seus Direitos como Titular dos Dados</h3>
+      <p>Nos termos da LGPD, você tem direito a:</p>
+      <ul>
+        <li>Confirmar a existência de tratamento dos seus dados;</li>
+        <li>Acessar seus dados;</li>
+        <li>Corrigir dados incompletos, inexatos ou desatualizados;</li>
+        <li>Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade;</li>
+        <li>Revogar o consentimento, quando aplicável.</li>
+      </ul>
+      <p>Solicitações podem ser feitas pelo nosso canal de atendimento: [e-mail de contato] ou [formulário no site].</p>
 
-      if (!doEmailsMatch()) {
-        confirmEmailError.style.display = "block";
-        mensagem.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique.";
-        mensagem.style.color = "red";
-        return;
-      } else {
-        confirmEmailError.style.display = "none";
-      }
+      ---
 
-      mensagem.textContent = "Processando... Por favor, aguarde.";
-      mensagem.style.color = "#3498db";
-      submitButton.disabled = true;
+      <h3>8. Cookies e Dados de Navegação</h3>
+      <p>Utilizamos cookies para:</p>
+      <ul>
+        <li>Melhorar a sua experiência de navegação;</li>
+        <li>Realizar análises estatísticas;</li>
+        <li>Garantir funcionalidades essenciais do site.</li>
+      </ul>
+      <p>Você pode gerenciar ou desabilitar cookies nas configurações do seu navegador.</p>
 
-      const formData = new FormData(formulario);
+      ---
 
-      try {
-        const resposta = await fetch("https://contrato-analisador-api.onrender.com/api/contrato/analisar", {
-          method: "POST",
-          body: formData
+      <h3>9. Alterações na Política</h3>
+      <p>Podemos atualizar esta Política periodicamente para refletir mudanças nos nossos processos, legislação ou aprimoramento dos nossos serviços. Recomendamos a leitura periódica deste documento.</p>
+
+      ---
+
+      <h3>10. Contato</h3>
+      <p>Em caso de dúvidas, solicitações ou exercício dos seus direitos, entre em contato através de:</p>
+      <ul>
+        <li>E-mail: [seu email]</li>
+        <li>Telefone: [seu telefone, se desejar]</li>
+        <li>Responsável pelo Tratamento dos Dados: [nome ou setor]</li>
+      </ul>
+
+      ---
+
+      <h3>Termo de Compromisso de Confidencialidade</h3>
+      <p>Reafirmamos nosso compromisso de que todas as informações e documentos fornecidos pelos usuários serão tratados com absoluto sigilo e utilizados única e exclusivamente para os fins de análise contratual, não sendo repassados, divulgados ou compartilhados, salvo quando houver determinação legal.</p>
+
+      ---
+
+      <p>✔ Aceite</p>
+      <p>Ao utilizar este site e enviar seus dados e documentos, você declara estar ciente e de acordo com os termos desta Política de Privacidade e Confidencialidade.</p>
+
+      <button id="hidePrivacyPolicyButton" class="privacy-button">Fechar Termo</button>
+    </div>
+
+    <form id="formulario">
+        <label for="nome">Seu Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+
+        <label for="email">Seu E-mail:</label>
+        <input type="email" id="email" name="email" required>
+        <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
+
+        <label for="confirmEmail">Confirmar E-mail:</label>
+        <input type="email" id="confirmEmail" name="confirmEmail" required>
+        <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
+
+        <label for="parte">Qual o seu papel no contrato?</label>
+        <select id="parte" name="parte" required>
+            <option value="" selected disabled>Selecione uma opção...</option>
+            <option value="comprador">Comprador</option>
+            <option value="vendedor">Vendedor</option>
+            <option value="contratante">Contratante</option>
+            <option value="contratado">Contratado</option>
+            <option value="locador">Locador</option>
+            <option value="locatario">Locatário</option>
+            <option value="credor">Credor</option>
+            <option value="devedor">Devedor</option>
+            <option value="outorgante">Outorgante</option>
+            <option value="outorgado">Outorgado</option>
+            <option value="cessionario">Cessionário</option>
+            <option value="cedente">Cedente</option>
+        </select>
+
+        <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
+        <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
+
+        <button type="submit" id="submitButton">Enviar para Análise</button>
+    </form>
+
+    <div id="mensagem-retorno"></div>
+
+    <script>
+        const formulario = document.getElementById("formulario");
+        const mensagem = document.getElementById("mensagem-retorno");
+        const emailInput = document.getElementById("email");
+        const emailError = document.getElementById("email-error");
+        const confirmEmailInput = document.getElementById("confirmEmail");
+        const confirmEmailError = document.getElementById("confirm-email-error");
+        const submitButton = document.getElementById("submitButton"); // Referência ao botão
+
+        const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
+        const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
+        const privacyPolicySection = document.getElementById("privacyPolicy");
+
+        showPrivacyPolicyButton.addEventListener("click", function() {
+            privacyPolicySection.style.display = "block";
+            showPrivacyPolicyButton.style.display = "none"; // Esconde o botão "Confira..."
+            // Opcional: rolar para o topo da política ao abrir
+            privacyPolicySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        const resultado = await resposta.json();
+        hidePrivacyPolicyButton.addEventListener("click", function() {
+            privacyPolicySection.style.display = "none";
+            showPrivacyPolicyButton.style.display = "block"; // Mostra o botão "Confira..." novamente
+            // Opcional: rolar de volta para o topo da página ou para a introdução
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
-        if (resposta.ok) {
-          let mensagemLimpa = resultado.mensagem;
-          // Limpa a string removendo '```html' do início e '```' do final
-          if (typeof mensagemLimpa === 'string') {
-              mensagemLimpa = mensagemLimpa.replace(/^```html\s*/, '').trim(); // Remove '```html' e espaços do início
-              mensagemLimpa = mensagemLimpa.replace(/\s*```$/, '').trim();      // Remove '```' e espaços do final
-          }
-
-          mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
-          mensagem.style.color = "green";
-          formulario.reset();
-        } else {
-          let erroLimpo = resultado.erro;
-          if (typeof erroLimpo === 'string') {
-              erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
-              erroLimpo = erroLimpo.replace(/\s*```$/, '').trim();
-          }
-          mensagem.textContent = erroLimpo || "Erro ao enviar análise.";
-          mensagem.style.color = "red";
+        // Função para validar o formato do e-mail
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
         }
-      } catch (erro) {
-        mensagem.textContent = "Erro de conexão com o servidor.";
-        mensagem.style.color = "red";
-      } finally {
-        submitButton.disabled = false;
-      }
-    });
-  </script>
+
+        // Função para verificar se os e-mails coincidem
+        function doEmailsMatch() {
+            return emailInput.value === confirmEmailInput.value;
+        }
+
+        // Event listener para o campo de e-mail principal
+        emailInput.addEventListener("input", function() {
+            if (emailInput.value.trim() === "") {
+                emailError.style.display = "none";
+            } else if (!validateEmail(emailInput.value)) {
+                emailError.style.display = "block";
+            } else {
+                emailError.style.display = "none";
+            }
+
+            if (confirmEmailInput.value.trim() !== "") {
+                if (!doEmailsMatch()) {
+                    confirmEmailError.style.display = "block";
+                } else {
+                    confirmEmailError.style.display = "none";
+                }
+            }
+        });
+
+        // Event listener para o campo de confirmação de e-mail
+        confirmEmailInput.addEventListener("input", function() {
+            if (confirmEmailInput.value.trim() === "") {
+                confirmEmailError.style.display = "none";
+            } else if (!doEmailsMatch()) {
+                confirmEmailError.style.display = "block";
+            } else {
+                confirmEmailError.style.display = "none";
+            }
+        });
+
+        formulario.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            if (!validateEmail(emailInput.value)) {
+                emailError.style.display = "block";
+                mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
+                mensagem.style.color = "red";
+                return;
+            } else {
+                emailError.style.display = "none";
+            }
+
+            if (!doEmailsMatch()) {
+                confirmEmailError.style.display = "block";
+                mensagem.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique.";
+                mensagem.style.color = "red";
+                return;
+            } else {
+                confirmEmailError.style.display = "none";
+            }
+
+            mensagem.textContent = "Processando... Por favor, aguarde.";
+            mensagem.style.color = "#3498db";
+            submitButton.disabled = true;
+
+            const formData = new FormData(formulario);
+
+            try {
+                const resposta = await fetch("https://contrato-analisador-api.onrender.com/api/contrato/analisar", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    let mensagemLimpa = resultado.mensagem;
+                    // Limpa a string removendo '```html' do início e '```' do final
+                    if (typeof mensagemLimpa === 'string') {
+                        mensagemLimpa = mensagemLimpa.replace(/^```html\s*/, '').trim(); // Remove '```html' e espaços do início
+                        mensagemLimpa = mensagemLimpa.replace(/\s*```$/, '').trim();      // Remove '```' e espaços do final
+                    }
+
+                    mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
+                    mensagem.style.color = "green";
+                    formulario.reset();
+                } else {
+                    let erroLimpo = resultado.erro;
+                    if (typeof erroLimpo === 'string') {
+                        erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
+                        erroLimpo = erroLimpo.replace(/\s*```$/, '').trim();
+                    }
+                    mensagem.textContent = erroLimpo || "Erro ao enviar análise.";
+                    mensagem.style.color = "red";
+                }
+            } catch (erro) {
+                mensagem.textContent = "Erro de conexão com o servidor.";
+                mensagem.style.color = "red";
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
