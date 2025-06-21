@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dra.Cláusula</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+      padding: 40px; /* Padding padrão para telas maiores */
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* Estilo para a imagem - agora posicionada diretamente no corpo e centralizada */
+    .initial-image {
+        display: block; /* Para permitir margin: auto para centralização */
+        max-width: 100%; /* Garante que a imagem não ultrapasse a largura do contêiner */
+        height: auto; /* Mantém a proporção da imagem */
+        margin: 0 auto 30px auto; /* Centraliza a imagem e adiciona espaço abaixo */
+        border-radius: 10px; /* Mantém o estilo arredondado */
+        box-shadow: 0 0 15px rgba(0,0,0,0.15); /* Sombra um pouco mais proeminente */
+    }
+
+    /* Estilo para a seção de introdução */
+    .introduction {
+      background-color: #ffffff;
+      padding: 20px;
+      margin-bottom: 30px; /* Espaçamento entre a introdução e o formulário */
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .introduction p {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .introduction ul {
+      list-style: none; /* Remove marcadores de lista padrão */
+      padding: 0;
+      text-align: left; /* Alinha os itens da lista à esquerda */
+      margin: 0 auto; /* Centraliza a lista, se o .introduction tiver uma largura definida */
+      max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
+    }
+
+    .introduction ul li {
+      background-color: #eaf6ff; /* Cor de fundo suave para cada item da lista */
+      margin-bottom: 8px;
+      padding: 10px 15px;
+      border-radius: 5px;
+      border-left: 4px solid #3498db; /* Borda lateral para destaque */
+      color: #444;
+      font-size: 0.95em;
+    }
+
+    form {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    /* Style for validation error messages */
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+        margin-top: 5px;
+        display: none; /* Hidden by default */
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease; /* Adicionado para efeito hover */
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Estilo para botão desabilitado */
+    button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    #mensagem-retorno {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    /* ======================================= */
+    /* MEDIA QUERIES - RESPONSIVIDADE             */
+    /* ======================================= */
+
+    /* Para telas menores que 768px (geralmente tablets e celulares) */
+    @media (max-width: 768px) {
+        body {
+            padding: 15px; /* Reduz o padding do corpo para telas menores */
+        }
+
+        .introduction,
+        form {
+            padding: 15px; /* Reduz o padding interno das seções */
+        }
+    }
+
+    /* Para telas muito pequenas (celulares menores) */
+    @media (max-width: 480px) {
+        body {
+            padding: 10px; /* Padding ainda menor para telas muito pequenas */
+        }
+
+        .initial-image {
+            margin-bottom: 20px; /* Ajusta o espaçamento da imagem */
+        }
+
+        .introduction p,
+        .introduction ul li {
+            font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
+        }
+    }
+  </style>
+</head>
+<body>
+  <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
+
+  <div class="introduction">
+    <p>
+      Sou a Dra. Cláusula, uma Inteligência Artificial avançada, desenvolvida para ser sua especialista em análise de contratos. Meu objetivo é proporcionar clareza e segurança jurídica em seus documentos, transformando a complexidade em informações claras e acionáveis.
+    </p>
+    <p>Com meus algoritmos, você obtém uma análise detalhada e imparcial do seu contrato, sob a perspectiva que você indicar. Nossa análise abrangente inclui:</p>
+    <ul>
+      <li>Identificação de **pontos positivos e negativos** específicos para sua posição no contrato.</li>
+      <li>Avaliação da **segurança das cláusulas de garantia** e cumprimento de obrigações.</li>
+      <li>Análise aprofundada do **tratamento de inadimplência e descumprimento** de termos.</li>
+      <li>**Sugestões de alterações** e inclusões de novas cláusulas para proteger seus interesses.</li>
+      <li>**Propostas de redação** para cláusulas substitutas, garantindo precisão jurídica.</li>
+    </ul>
+    <p>
+      Para iniciar sua análise, por favor, preencha o formulário abaixo.
+    </p>
+  </div>
+
+  <form id="formulario">
+    <label for="nome">Seu Nome:</label>
+    <input type="text" id="nome" name="nome" required>
+
+    <label for="email">Seu E-mail:</label>
+    <input type="email" id="email" name="email" required>
+    <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
+
+    <label for="confirmEmail">Confirmar E-mail:</label>
+    <input type="email" id="confirmEmail" name="confirmEmail" required>
+    <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
+
+    <label for="parte">Qual o seu papel no contrato?</label>
+    <select id="parte" name="parte" required>
+      <option value="" selected disabled>Selecione uma opção...</option>
+      <option value="comprador">Comprador</option>
+      <option value="vendedor">Vendedor</option>
+      <option value="contratante">Contratante</option>
+      <option value="contratado">Contratado</option>
+      <option value="locador">Locador</option>
+      <option value="locatario">Locatário</option>
+      <option value="credor">Credor</option>
+      <option value="devedor">Devedor</option>
+      <option value="outorgante">Outorgante</option>
+      <option value="outorgado">Outorgado</option>
+      <option value="cessionario">Cessionário</option>
+      <option value="cedente">Cedente</option>
+    </select>
+
+    <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
+    <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
+
+    <button type="submit" id="submitButton">Enviar para Análise</button>
+  </form>
+
+  <div id="mensagem-retorno"></div>
+
+  <script>
+    const formulario = document.getElementById("formulario");
+    const mensagem = document.getElementById("mensagem-retorno");
+    const emailInput = document.getElementById("email");
+    const emailError = document.getElementById("email-error");
+    const confirmEmailInput = document.getElementById("confirmEmail");
+    const confirmEmailError = document.getElementById("confirm-email-error");
+    const submitButton = document.getElementById("submitButton"); // Referência ao botão
+
+    // Função para validar o formato do e-mail
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(String(email).toLowerCase());
+    }
+
+    // Função para verificar se os e-mails coincidem
+    function doEmailsMatch() {
+        return emailInput.value === confirmEmailInput.value;
+    }
+
+    // Event listener para o campo de e-mail principal
+    emailInput.addEventListener("input", function() {
+      if (emailInput.value.trim() === "") {
+        emailError.style.display = "none";
+      } else if (!validateEmail(emailInput.value)) {
+        emailError.style.display = "block";
+      } else {
+        emailError.style.display = "none";
+      }
+
+      if (confirmEmailInput.value.trim() !== "") {
+          if (!doEmailsMatch()) {
+              confirmEmailError.style.display = "block";
+          } else {
+              confirmEmailError.style.display = "none";
+          }
+      }
+    });
+
+    // Event listener para o campo de confirmação de e-mail
+    confirmEmailInput.addEventListener("input", function() {
+        if (confirmEmailInput.value.trim() === "") {
+            confirmEmailError.style.display = "none";
+        } else if (!doEmailsMatch()) {
+            confirmEmailError.style.display = "block";
+        } else {
+            confirmEmailError.style.display = "none";
+        }
+    });
+
+    formulario.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (!validateEmail(emailInput.value)) {
+        emailError.style.display = "block";
+        mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
+        mensagem.style.color = "red";
+        return;
+      } else {
+        emailError.style.display = "none";
+      }
+
+      if (!doEmailsMatch()) {
+        confirmEmailError.style.display = "block";
+        mensagem.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique.";
+        mensagem.style.color = "red";
+        return;
+      } else {
+        confirmEmailError.style.display = "none";
+      }
+
+      mensagem.textContent = "Processando... Por favor, aguarde.";
+      mensagem.style.color = "#3498db";
+      submitButton.disabled = true;
+
+      const formData = new FormData(formulario);
+
+      try {
+        const resposta = await fetch("https://contrato-analisador-api.onrender.com/api/contrato/analisar", {
+          method: "POST",
+          body: formData
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+          let mensagemLimpa = resultado.mensagem;
+          // Limpa a string removendo '```html' do início e '```' do final
+          if (typeof mensagemLimpa === 'string') {
+              mensagemLimpa = mensagemLimpa.replace(/^```html\s*/, '').trim(); // Remove '```html' e espaços do início
+              mensagemLimpa = mensagemLimpa.replace(/\s*```$/, '').trim();      // Remove '```' e espaços do final
+          }
+
+          mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
+          mensagem.style.color = "green";
+          formulario.reset();
+        } else {
+          let erroLimpo = resultado.erro;
+          if (typeof erroLimpo === 'string') {
+              erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
+              erroLimpo = erroLimpo.replace(/\s*```$/, '').trim();
+          }
+          mensagem.textContent = erroLimpo || "Erro ao enviar análise.";
+          mensagem.style.color = "red";
+        }
+      } catch (erro) {
+        mensagem.textContent = "Erro de conexão com o servidor.";
+        mensagem.style.color = "red";
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
