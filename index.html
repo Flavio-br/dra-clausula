@@ -124,6 +124,21 @@
             pointer-events: auto;
         }
 
+        /* Estilo para a nova seção de email e botão de pagamento */
+        .payment-email-section {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center; /* Centraliza o botão */
+        }
+        .payment-email-section label {
+            text-align: left; /* Alinha labels à esquerda dentro da nova seção */
+        }
+
+
         label {
             display: block;
             margin-top: 15px;
@@ -169,8 +184,8 @@
         /* Estilo para botão de pagamento */
         .payment-button {
             background-color: #28a745; /* Um verde vibrante para o botão de pagamento */
-            margin-top: 30px; /* Mais espaço para separá-lo do termo de confidencialidade */
-            margin-bottom: 30px; /* Espaço antes do formulário */
+            margin-top: 20px; /* Ajustado para dentro da nova seção */
+            margin-bottom: 0px; /* Removido para não criar espaço extra desnecessário */
         }
 
         .payment-button:hover {
@@ -202,7 +217,8 @@
 
             .introduction,
             form,
-            .privacy-policy-section { /* Adicionado para a nova seção */
+            .privacy-policy-section,
+            .payment-email-section { /* Adicionado para a nova seção */
                 padding: 15px; /* Reduz o padding interno das seções */
             }
         }
@@ -219,8 +235,10 @@
 
             .introduction p,
             .introduction ul li,
-            .privacy-policy-section p, /* Adicionado para a nova seção */
-            .privacy-policy-section ul li { /* Adicionado para a nova seção */
+            .privacy-policy-section p,
+            .privacy-policy-section ul li,
+            .payment-email-section label, /* Ajuste para labels na nova seção */
+            .payment-email-section input { /* Ajuste para inputs na nova seção */
                 font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
             }
         }
@@ -350,18 +368,9 @@
       <button id="hidePrivacyPolicyButton" class="privacy-button">Fechar Termo</button>
     </div>
 
-    <div style="text-align: center;">
-        <button type="button" id="paymentButton" class="payment-button">
-            Realizar Pagamento
-        </button>
-    </div>
-
-    <!-- O formulário começa desabilitado -->
-    <form id="formulario" class="disabled-form">
-        <label for="nome">Seu Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-
-        <label for="email">Seu E-mail:</label>
+    <!-- Nova seção para os campos de e-mail e o botão de pagamento -->
+    <div class="payment-email-section">
+        <label for="email">Seu E-mail para Pagamento e Análise:</label>
         <input type="email" id="email" name="email" required>
         <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
 
@@ -369,6 +378,18 @@
         <input type="email" id="confirmEmail" name="confirmEmail" required>
         <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
 
+        <button type="button" id="paymentButton" class="payment-button">
+            Realizar Pagamento
+        </button>
+    </div>
+    <!-- Fim da nova seção -->
+
+    <!-- O formulário principal (questionário) começa desabilitado -->
+    <form id="formulario" class="disabled-form">
+        <label for="nome">Seu Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+        <!-- Os campos de email foram movidos para fora deste formulário -->
+        
         <label for="parte">Qual o seu papel no contrato?</label>
         <select id="parte" name="parte" required>
             <option value="" selected disabled>Selecione uma opção...</option>
@@ -382,7 +403,7 @@
             <option value="devedor">Devedor</option>
             <option value="outorgante">Outorgante</option>
             <option value="outorgado">Outorgado</option>
-            <option value="cessionario">Cessionário</option>
+            <option value="cessionario">Cessionario</option>
             <option value="cedente">Cedente</option>
         </select>
 
@@ -412,7 +433,7 @@
         // URL BASE DA SUA API NO RENDER - SUBSTITUA PELA URL REAL DA SUA API!
         const API_BASE_URL = "https://sua-api-dra-clausula.onrender.com"; // Ex: https://dra-clausula-api.onrender.com
 
-        // Função para desabilitar/habilitar o formulário
+        // Função para desabilitar/habilitar o formulário principal (questionário)
         function toggleForm(enable) {
             const formElements = formulario.elements;
             for (let i = 0; i < formElements.length; i++) {
@@ -428,7 +449,7 @@
             }
         }
 
-        // Desabilita o formulário e o botão de envio ao carregar a página
+        // Desabilita o formulário principal e o botão de envio ao carregar a página
         toggleForm(false);
 
         // Event listeners para mostrar/esconder a política de privacidade
@@ -479,6 +500,8 @@
                 confirmEmailError.style.display = "none";
             }
 
+            // Log para depuração: verifique o valor do e-mail sendo enviado para a API
+            console.log("Email a ser enviado para a API de pagamento:", userEmail);
 
             try {
                 // Requisição para SUA API para criar a preferência de pagamento no Mercado Pago
@@ -553,7 +576,7 @@
         // Event listener para o campo de e-mail principal (valida enquanto digita)
         emailInput.addEventListener("input", function() {
             if (emailInput.value.trim() === "") {
-                emailError.style.display = "none";
+                emailError.style.display = "none"; // Esconde erro se o campo ficar vazio
             } else if (!validateEmail(emailInput.value)) {
                 emailError.style.display = "block";
             } else {
@@ -572,7 +595,7 @@
         // Event listener para o campo de confirmação de e-mail (valida enquanto digita)
         confirmEmailInput.addEventListener("input", function() {
             if (confirmEmailInput.value.trim() === "") {
-                confirmEmailError.style.display = "none";
+                confirmEmailError.style.display = "none"; // Esconde erro se o campo ficar vazio
             } else if (!doEmailsMatch()) {
                 confirmEmailError.style.display = "block";
             } else {
@@ -590,7 +613,7 @@
                 return;
             }
 
-            // Validações de e-mail ao submeter o formulário
+            // Validações de e-mail ao submeter o formulário (redundante, mas seguro se o usuário puder editar)
             if (!validateEmail(emailInput.value)) {
                 emailError.style.display = "block";
                 mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
@@ -634,12 +657,15 @@
                     mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
                     mensagem.style.color = "green";
                     formulario.reset(); // Limpa o formulário após o sucesso
+                    // Reset também os campos de email fora do formulário se desejar
+                    emailInput.value = '';
+                    confirmEmailInput.value = '';
                     // Após o envio, você pode decidir se quer desabilitar o formulário novamente
                     // ou mantê-lo habilitado para novas análises (dependendo da sua lógica de negócio).
                     // Para desabilitar novamente e mostrar o botão de pagamento:
-                    // toggleForm(false);
-                    // paymentButton.style.display = 'block';
-                    // paymentButton.disabled = false;
+                    toggleForm(false);
+                    paymentButton.style.display = 'block';
+                    paymentButton.disabled = false;
                 } else {
                     let erroLimpo = resultado.erro;
                     if (typeof erroLimpo === 'string') {
