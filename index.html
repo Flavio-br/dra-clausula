@@ -113,6 +113,13 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            opacity: 0.5; /* Inicialmente opaco */
+            pointer-events: none; /* Desabilita interações com o formulário */
+        }
+
+        form.enabled {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         label {
@@ -155,6 +162,17 @@
 
         button:hover {
             background-color: #2980b9;
+        }
+
+        /* Estilo para botão de pagamento */
+        .payment-button {
+            background-color: #28a745; /* Um verde vibrante para o botão de pagamento */
+            margin-top: 30px; /* Mais espaço para separá-lo do termo de confidencialidade */
+            margin-bottom: 30px; /* Espaço antes do formulário */
+        }
+
+        .payment-button:hover {
+            background-color: #218838;
         }
 
         /* Estilo para botão desabilitado */
@@ -330,7 +348,13 @@
       <button id="hidePrivacyPolicyButton" class="privacy-button">Fechar Termo</button>
     </div>
 
-    <form id="formulario">
+    <div style="text-align: center;">
+        <button type="button" id="paymentButton" class="payment-button">
+            Realizar Pagamento
+        </button>
+    </div>
+
+    <form id="formulario" class="disabled-form">
         <label for="nome">Seu Nome:</label>
         <input type="text" id="nome" name="nome" required>
 
@@ -362,7 +386,7 @@
         <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
         <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
 
-        <button type="submit" id="submitButton">Enviar para Análise</button>
+        <button type="submit" id="submitButton" disabled>Enviar para Análise</button>
     </form>
 
     <div id="mensagem-retorno"></div>
@@ -374,25 +398,77 @@
         const emailError = document.getElementById("email-error");
         const confirmEmailInput = document.getElementById("confirmEmail");
         const confirmEmailError = document.getElementById("confirm-email-error");
-        const submitButton = document.getElementById("submitButton"); // Referência ao botão
+        const submitButton = document.getElementById("submitButton"); // Referência ao botão "Enviar para Análise"
+        const paymentButton = document.getElementById("paymentButton"); // Referência ao botão "Realizar Pagamento"
 
         const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
         const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
         const privacyPolicySection = document.getElementById("privacyPolicy");
 
+        // Função para desabilitar/habilitar o formulário
+        function toggleForm(enable) {
+            const formElements = formulario.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                formElements[i].disabled = !enable;
+            }
+            submitButton.disabled = !enable; // Garante que o botão de submit siga o estado do formulário
+            if (enable) {
+                formulario.classList.add('enabled');
+                formulario.classList.remove('disabled-form'); // Remove a classe que desabilita visualmente
+            } else {
+                formulario.classList.remove('enabled');
+                formulario.classList.add('disabled-form'); // Adiciona a classe que desabilita visualmente
+            }
+        }
+
+        // Desabilita o formulário ao carregar a página
+        toggleForm(false);
+
         showPrivacyPolicyButton.addEventListener("click", function() {
             privacyPolicySection.style.display = "block";
             showPrivacyPolicyButton.style.display = "none"; // Esconde o botão "Confira..."
-            // Opcional: rolar para o topo da política ao abrir
             privacyPolicySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
         hidePrivacyPolicyButton.addEventListener("click", function() {
             privacyPolicySection.style.display = "none";
             showPrivacyPolicyButton.style.display = "block"; // Mostra o botão "Confira..." novamente
-            // Opcional: rolar de volta para o topo da página ou para a introdução
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+
+        // Evento para o botão de pagamento
+        paymentButton.addEventListener("click", function() {
+            // **ATENÇÃO:** Substitua 'https://link-para-sua-pagina-de-pagamento.com' pela URL real
+            // Idealmente, você faria uma chamada a um backend para gerar um checkout seguro
+            const paymentWindow = window.open('https://link-para-sua-pagina-de-pagamento.com', '_blank');
+
+            // SIMULAÇÃO DE PAGAMENTO:
+            // Para este exemplo, vamos simular que o pagamento foi "concluído" após 3 segundos
+            // Em um cenário real, você precisaria de um callback do seu provedor de pagamento
+            // ou verificar o status do pagamento via API no backend.
+            mensagem.textContent = "Redirecionando para o pagamento... Aguarde a confirmação.";
+            mensagem.style.color = "#FFA500"; // Laranja para status pendente
+
+            // Desabilita o botão de pagamento enquanto o processo "ocorre"
+            paymentButton.disabled = true;
+
+            setTimeout(() => {
+                if (paymentWindow && !paymentWindow.closed) {
+                    // Se a janela de pagamento ainda estiver aberta (ou seja, o usuário não a fechou imediatamente)
+                    // Consideramos uma "simulação de sucesso"
+                    toggleForm(true); // Habilita o formulário
+                    mensagem.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
+                    mensagem.style.color = "green";
+                    paymentButton.style.display = 'none'; // Esconde o botão de pagamento após a "confirmação"
+                } else {
+                    // Se a janela foi fechada antes da "confirmação"
+                    mensagem.textContent = "Pagamento não confirmado ou janela fechada. Por favor, tente novamente.";
+                    mensagem.style.color = "red";
+                    paymentButton.disabled = false; // Reabilita o botão de pagamento
+                }
+            }, 3000); // Simula um atraso de 3 segundos para o pagamento
+        });
+
 
         // Função para validar o formato do e-mail
         function validateEmail(email) {
@@ -438,6 +514,14 @@
         formulario.addEventListener("submit", async function (e) {
             e.preventDefault();
 
+            // As validações de e-mail só precisam rodar se o formulário estiver habilitado
+            if (!formulario.classList.contains('enabled')) {
+                mensagem.textContent = "Por favor, realize o pagamento para enviar a análise.";
+                mensagem.style.color = "red";
+                return;
+            }
+
+
             if (!validateEmail(emailInput.value)) {
                 emailError.style.display = "block";
                 mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
@@ -481,6 +565,12 @@
                     mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
                     mensagem.style.color = "green";
                     formulario.reset();
+                    // Após o envio, você pode desabilitar o formulário novamente se for uma compra única
+                    // ou mantê-lo habilitado se o pagamento permitir múltiplas análises.
+                    // Por exemplo, para desabilitar novamente:
+                    // toggleForm(false);
+                    // paymentButton.style.display = 'block'; // Mostra o botão de pagamento novamente se for preciso pagar de novo
+                    // paymentButton.disabled = false;
                 } else {
                     let erroLimpo = resultado.erro;
                     if (typeof erroLimpo === 'string') {
