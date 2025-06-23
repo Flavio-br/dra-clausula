@@ -108,6 +108,7 @@
             margin-bottom: 5px;
         }
 
+        /* Estilos para o formulário desabilitado/habilitado */
         form {
             background-color: #ffffff;
             padding: 20px;
@@ -115,6 +116,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             opacity: 0.5; /* Inicialmente opaco */
             pointer-events: none; /* Desabilita interações com o formulário */
+            transition: opacity 0.3s ease; /* Transição suave para habilitação */
         }
 
         form.enabled {
@@ -354,6 +356,7 @@
         </button>
     </div>
 
+    <!-- O formulário começa desabilitado -->
     <form id="formulario" class="disabled-form">
         <label for="nome">Seu Nome:</label>
         <input type="text" id="nome" name="nome" required>
@@ -392,18 +395,22 @@
     <div id="mensagem-retorno"></div>
 
     <script>
+        // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
         const mensagem = document.getElementById("mensagem-retorno");
         const emailInput = document.getElementById("email");
         const emailError = document.getElementById("email-error");
         const confirmEmailInput = document.getElementById("confirmEmail");
         const confirmEmailError = document.getElementById("confirm-email-error");
-        const submitButton = document.getElementById("submitButton"); // Referência ao botão "Enviar para Análise"
-        const paymentButton = document.getElementById("paymentButton"); // Referência ao botão "Realizar Pagamento"
+        const submitButton = document.getElementById("submitButton"); // Botão "Enviar para Análise"
+        const paymentButton = document.getElementById("paymentButton"); // Botão "Realizar Pagamento"
 
         const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
         const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
         const privacyPolicySection = document.getElementById("privacyPolicy");
+
+        // URL BASE DA SUA API NO RENDER - SUBSTITUA PELA URL REAL DA SUA API!
+        const API_BASE_URL = "https://sua-api-dra-clausula.onrender.com"; // Ex: https://dra-clausula-api.onrender.com
 
         // Função para desabilitar/habilitar o formulário
         function toggleForm(enable) {
@@ -414,61 +421,123 @@
             submitButton.disabled = !enable; // Garante que o botão de submit siga o estado do formulário
             if (enable) {
                 formulario.classList.add('enabled');
-                formulario.classList.remove('disabled-form'); // Remove a classe que desabilita visualmente
+                formulario.classList.remove('disabled-form');
             } else {
                 formulario.classList.remove('enabled');
-                formulario.classList.add('disabled-form'); // Adiciona a classe que desabilita visualmente
+                formulario.classList.add('disabled-form');
             }
         }
 
-        // Desabilita o formulário ao carregar a página
+        // Desabilita o formulário e o botão de envio ao carregar a página
         toggleForm(false);
 
+        // Event listeners para mostrar/esconder a política de privacidade
         showPrivacyPolicyButton.addEventListener("click", function() {
             privacyPolicySection.style.display = "block";
-            showPrivacyPolicyButton.style.display = "none"; // Esconde o botão "Confira..."
+            showPrivacyPolicyButton.style.display = "none";
             privacyPolicySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
         hidePrivacyPolicyButton.addEventListener("click", function() {
             privacyPolicySection.style.display = "none";
-            showPrivacyPolicyButton.style.display = "block"; // Mostra o botão "Confira..." novamente
+            showPrivacyPolicyButton.style.display = "block";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         // Evento para o botão de pagamento
-        paymentButton.addEventListener("click", function() {
-            // **ATENÇÃO:** Substitua 'https://link-para-sua-pagina-de-pagamento.com' pela URL real
-            // Idealmente, você faria uma chamada a um backend para gerar um checkout seguro
-            const paymentWindow = window.open('https://link-para-sua-pagina-de-pagamento.com', '_blank');
+        paymentButton.addEventListener("click", async function() {
+            mensagem.textContent = "Verificando e-mail e preparando o pagamento...";
+            mensagem.style.color = "#3498db"; // Azul para status de carregamento
+            paymentButton.disabled = true; // Desabilita o botão de pagamento para evitar cliques múltiplos
 
-            // SIMULAÇÃO DE PAGAMENTO:
-            // Para este exemplo, vamos simular que o pagamento foi "concluído" após 3 segundos
-            // Em um cenário real, você precisaria de um callback do seu provedor de pagamento
-            // ou verificar o status do pagamento via API no backend.
-            mensagem.textContent = "Redirecionando para o pagamento... Aguarde a confirmação.";
-            mensagem.style.color = "#FFA500"; // Laranja para status pendente
+            const userEmail = emailInput.value; 
+            // Valida o formato do e-mail antes de prosseguir para o pagamento
+            if (!validateEmail(userEmail)) {
+                emailError.style.display = "block";
+                mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail' antes de prosseguir com o pagamento.";
+                mensagem.style.color = "red";
+                paymentButton.disabled = false; // Reabilita o botão
+                return;
+            } else {
+                emailError.style.display = "none";
+            }
+            
+            // Verifica se os e-mails de confirmação coincidem antes de prosseguir
+            if (confirmEmailInput.value.trim() === "") {
+                confirmEmailError.style.display = "block";
+                mensagem.textContent = "Por favor, confirme seu e-mail antes de prosseguir com o pagamento.";
+                mensagem.style.color = "red";
+                paymentButton.disabled = false; // Reabilita o botão
+                return;
+            } else if (!doEmailsMatch()) {
+                confirmEmailError.style.display = "block";
+                mensagem.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique antes de prosseguir com o pagamento.";
+                mensagem.style.color = "red";
+                paymentButton.disabled = false; // Reabilita o botão
+                return;
+            } else {
+                confirmEmailError.style.display = "none";
+            }
 
-            // Desabilita o botão de pagamento enquanto o processo "ocorre"
-            paymentButton.disabled = true;
 
-            setTimeout(() => {
-                if (paymentWindow && !paymentWindow.closed) {
-                    // Se a janela de pagamento ainda estiver aberta (ou seja, o usuário não a fechou imediatamente)
-                    // Consideramos uma "simulação de sucesso"
-                    toggleForm(true); // Habilita o formulário
-                    mensagem.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
-                    mensagem.style.color = "green";
-                    paymentButton.style.display = 'none'; // Esconde o botão de pagamento após a "confirmação"
+            try {
+                // Requisição para SUA API para criar a preferência de pagamento no Mercado Pago
+                const response = await fetch(`${API_BASE_URL}/api/pagamento/criar-checkout`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: new URLSearchParams({
+                        item_title: "Análise de Contrato Dra. Cláusula",
+                        item_price: "29.99", // PREÇO - Certifique-se que o valor aqui corresponde ao do backend
+                        user_email: userEmail
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const checkoutUrl = data.checkout_url;
+                    if (checkoutUrl) {
+                        mensagem.textContent = "Redirecionando para a página de pagamento do Mercado Pago...";
+                        mensagem.style.color = "#28a745"; // Verde para redirecionamento
+                        window.open(checkoutUrl, '_blank'); // Abre o checkout em uma nova aba
+
+                        // --- ATENÇÃO: SIMULAÇÃO DE CONFIRMAÇÃO DE PAGAMENTO NO FRONTEND ---
+                        // Em um sistema real, a habilitação do formulário DEVERIA ocorrer APENAS
+                        // após a confirmação SEGURA do pagamento via WEBHook no SEU BACKEND.
+                        // O backend então persistiria esse status (ex: em um banco de dados).
+                        // O frontend precisaria de um mecanismo para CONSULTAR esse status (ex: polling)
+                        // ou ser redirecionado para uma página de sucesso que faria a validação final.
+                        //
+                        // Para fins de teste e demonstração do fluxo frontend -> MP,
+                        // manteremos a simulação de habilitação após alguns segundos.
+                        // LEMBRE-SE: ISSO NÃO É SEGURO PARA PRODUÇÃO SEM A VALIDAÇÃO DO BACKEND/DB.
+                        paymentButton.style.display = 'none'; // Esconde o botão de pagamento após redirecionar
+
+                        setTimeout(() => {
+                            toggleForm(true); // Habilita o formulário para preenchimento
+                            mensagem.textContent = "Pagamento supostamente iniciado. O formulário foi habilitado. (Confirmação real via backend/webhook).";
+                            mensagem.style.color = "green";
+                        }, 3000); // Simula um tempo para o usuário ir, pagar e o webhook ser processado.
+
+                    } else {
+                        mensagem.textContent = "Erro: Link de checkout não recebido do servidor. Contate o suporte.";
+                        mensagem.style.color = "red";
+                        paymentButton.disabled = false; // Reabilita o botão
+                    }
                 } else {
-                    // Se a janela foi fechada antes da "confirmação"
-                    mensagem.textContent = "Pagamento não confirmado ou janela fechada. Por favor, tente novamente.";
+                    mensagem.textContent = data.detail || "Erro ao iniciar pagamento. Tente novamente ou contate o suporte.";
                     mensagem.style.color = "red";
-                    paymentButton.disabled = false; // Reabilita o botão de pagamento
+                    paymentButton.disabled = false; // Reabilita o botão
                 }
-            }, 3000); // Simula um atraso de 3 segundos para o pagamento
+            } catch (error) {
+                mensagem.textContent = "Erro de conexão ao servidor para iniciar pagamento. Verifique sua rede e tente novamente.";
+                mensagem.style.color = "red";
+                paymentButton.disabled = false; // Reabilita o botão
+                console.error("Erro ao chamar API de pagamento:", error);
+            }
         });
-
 
         // Função para validar o formato do e-mail
         function validateEmail(email) {
@@ -481,7 +550,7 @@
             return emailInput.value === confirmEmailInput.value;
         }
 
-        // Event listener para o campo de e-mail principal
+        // Event listener para o campo de e-mail principal (valida enquanto digita)
         emailInput.addEventListener("input", function() {
             if (emailInput.value.trim() === "") {
                 emailError.style.display = "none";
@@ -500,7 +569,7 @@
             }
         });
 
-        // Event listener para o campo de confirmação de e-mail
+        // Event listener para o campo de confirmação de e-mail (valida enquanto digita)
         confirmEmailInput.addEventListener("input", function() {
             if (confirmEmailInput.value.trim() === "") {
                 confirmEmailError.style.display = "none";
@@ -514,14 +583,14 @@
         formulario.addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            // As validações de e-mail só precisam rodar se o formulário estiver habilitado
+            // Garante que o formulário só pode ser submetido se estiver habilitado (após "pagamento")
             if (!formulario.classList.contains('enabled')) {
                 mensagem.textContent = "Por favor, realize o pagamento para enviar a análise.";
                 mensagem.style.color = "red";
                 return;
             }
 
-
+            // Validações de e-mail ao submeter o formulário
             if (!validateEmail(emailInput.value)) {
                 emailError.style.display = "block";
                 mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
@@ -540,9 +609,9 @@
                 confirmEmailError.style.display = "none";
             }
 
-            mensagem.textContent = "Processando... Por favor, aguarde.";
+            mensagem.textContent = "Processando sua análise... Por favor, aguarde.";
             mensagem.style.color = "#3498db";
-            submitButton.disabled = true;
+            submitButton.disabled = true; // Desabilita o botão de envio durante o processamento
 
             const formData = new FormData(formulario);
 
@@ -558,18 +627,18 @@
                     let mensagemLimpa = resultado.mensagem;
                     // Limpa a string removendo '```html' do início e '```' do final
                     if (typeof mensagemLimpa === 'string') {
-                        mensagemLimpa = mensagemLimpa.replace(/^```html\s*/, '').trim(); // Remove '```html' e espaços do início
-                        mensagemLimpa = mensagemLimpa.replace(/\s*```$/, '').trim();      // Remove '```' e espaços do final
+                        mensagemLimpa = mensagemLimpa.replace(/^```html\s*/, '').trim();
+                        mensagemLimpa = mensagemLimpa.replace(/\s*```$/, '').trim();
                     }
 
                     mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
                     mensagem.style.color = "green";
-                    formulario.reset();
-                    // Após o envio, você pode desabilitar o formulário novamente se for uma compra única
-                    // ou mantê-lo habilitado se o pagamento permitir múltiplas análises.
-                    // Por exemplo, para desabilitar novamente:
+                    formulario.reset(); // Limpa o formulário após o sucesso
+                    // Após o envio, você pode decidir se quer desabilitar o formulário novamente
+                    // ou mantê-lo habilitado para novas análises (dependendo da sua lógica de negócio).
+                    // Para desabilitar novamente e mostrar o botão de pagamento:
                     // toggleForm(false);
-                    // paymentButton.style.display = 'block'; // Mostra o botão de pagamento novamente se for preciso pagar de novo
+                    // paymentButton.style.display = 'block';
                     // paymentButton.disabled = false;
                 } else {
                     let erroLimpo = resultado.erro;
@@ -581,10 +650,10 @@
                     mensagem.style.color = "red";
                 }
             } catch (erro) {
-                mensagem.textContent = "Erro de conexão com o servidor.";
+                mensagem.textContent = "Erro de conexão com o servidor de análise.";
                 mensagem.style.color = "red";
             } finally {
-                submitButton.disabled = false;
+                submitButton.disabled = false; // Reabilita o botão de envio no final
             }
         });
     </script>
