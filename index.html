@@ -700,11 +700,10 @@
                 confirmEmailError.style.display = "none";
             }
             
-            // Certifique-se de que o user_id seja enviado também com a análise do contrato
-            // Isso é importante para que o backend possa verificar o pagamento associado a este user_id
+            // Certifique-se de que o user_id e o email sejam enviados também com a análise do contrato
             const formData = new FormData(formulario); 
             formData.append('user_id', userId);
-
+            formData.append('email', emailInput.value); // <--- CORREÇÃO: Adicionando o campo 'email' aqui
 
             mensagem.textContent = "Processando sua análise... Por favor, aguarde.";
             mensagem.style.color = "#3498db";
@@ -741,7 +740,7 @@
                     let erroLimpo = resultado.detail || resultado.erro; // Prioriza 'detail' de HTTPException
                     if (typeof erroLimpo === 'string') {
                         erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
-                        erroLimpo = erroLimpo.replace(/\s*```$/, '').trim();
+                        erroLimpa = erroLimpo.replace(/\s*```$/, '').trim();
                     }
                     mensagem.textContent = erroLimpo || "Erro ao enviar análise.";
                     mensagem.style.color = "red";
