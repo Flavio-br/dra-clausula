@@ -359,7 +359,7 @@
 
       
       <h3>Termo de Compromisso de Confidencialidade</h3>
-      <p>Reafirmamos nosso compromisso de que todas as informações e documentos fornecidos pelos usuários serão tratados com absoluto sigilo e utilizados única e exclusivamente para os fins de análise contratual, não sendo repassados, divulgados ou compartilhados, salvo quando houver determinação legal.</p>
+      <p>Reafirmamos nosso compromisso de que todas as informações e documentos fornecidas pelos usuários serão tratados com absoluto sigilo e utilizados única e exclusivamente para os fins de análise contratual, não sendo repassados, divulgados ou compartilhados, salvo quando houver determinação legal.</p>
 
       
       <p>✔ Aceite</p>
@@ -564,7 +564,7 @@
                     },
                     body: new URLSearchParams({
                         item_title: "Análise de Contrato Dra. Cláusula",
-                        item_price: "0.01", // PREÇO - Certifique-se que o valor aqui corresponde ao do backend
+                        item_price: "0.01", // PREÇO SINCRONIZADO COM O BACKEND (0.01 CENTAVOS)
                         user_email: userEmail,
                         user_id: userId // Envia o user_id para o backend
                     })
@@ -575,7 +575,7 @@
                 if (response.ok) {
                     const checkoutUrl = data.checkout_url;
                     if (checkoutUrl) {
-                        mensagem.textContent = "Redirecionando para a página de pagamento do Mercado Pago...";
+                        mensagem.textContent = "Redirecionando para a página de pagamento do Mercado Pago... Por favor, conclua o pagamento na nova aba e feche-a para retornar.";
                         mensagem.style.color = "#28a745"; // Verde para redirecionamento
 
                         // Abre o checkout em uma nova aba.
@@ -584,7 +584,7 @@
 
                         // --- LÓGICA DE POLLING APÓS REDIRECIONAMENTO ---
                         // Remove a simulação com setTimeout
-                        mensagem.textContent = "Aguardando confirmação do pagamento...";
+                        mensagem.textContent = "Aguardando confirmação do pagamento... Por favor, conclua o pagamento na nova aba e feche-a para retornar aqui.";
                         mensagem.style.color = "#FFA500"; // Laranja para status pendente
 
                         // Inicia o polling para verificar o status do pagamento
@@ -702,10 +702,7 @@
             
             // Certifique-se de que o user_id seja enviado também com a análise do contrato
             // Isso é importante para que o backend possa verificar o pagamento associado a este user_id
-            // A FormData é criada logo antes do try/catch, então o append deve ser feito antes ou recriar a formData
-            // Corrigindo: A FormData deve ser criada APÓS todas as validações, e APENAS uma vez antes do envio.
-            // Aqui, ela está sendo recriada dentro do try, então vamos garantir que o append seja feito no local correto.
-            const formData = new FormData(formulario); // Move a criação da FormData para aqui, antes do append
+            const formData = new FormData(formulario); 
             formData.append('user_id', userId);
 
 
@@ -741,7 +738,7 @@
                     paymentButton.style.display = 'block';
                     paymentButton.disabled = false;
                 } else {
-                    let erroLimpo = resultado.erro;
+                    let erroLimpo = resultado.detail || resultado.erro; // Prioriza 'detail' de HTTPException
                     if (typeof erroLimpo === 'string') {
                         erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
                         erroLimpo = erroLimpo.replace(/\s*```$/, '').trim();
