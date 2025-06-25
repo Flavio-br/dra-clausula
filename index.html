@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dra.Cláusula | Análise Inteligente de Contratos</title>
 
-     <!-- SEO Básico -->
-    <meta name="description" content="Envie seu contrato e receba uma análise inteligente e detalhada com apoio de IA. Rápido e confiável.">
-    <meta name="keywords" content="análise de contrato, IA, inteligência artificial, contrato de compra e venda, cláusulas contratuais, revisão de contrato">
+     <!-- SEO Básico Aprimorado -->
+    <meta name="description" content="Dra.Cláusula oferece análise inteligente e segura de contratos com inteligência artificial. Receba revisão detalhada, identifique riscos, sugestões de cláusulas e aumente sua segurança jurídica. Rápido e confiável para compra e venda, locação e mais.">
+    <meta name="keywords" content="análise de contrato, IA, inteligência artificial, revisão de contrato, segurança jurídica, cláusulas contratuais, contrato de compra e venda, contrato de locação, due diligence, advocacia digital, legal tech, análise jurídica, inteligência artificial em direito">
     <meta name="robots" content="index, follow">
 
     <!-- Open Graph (para compartilhamento em redes sociais) -->
@@ -732,15 +732,26 @@
                 const resultado = await resposta.json();
 
                 if (resposta.ok) {
-                    let mensagemLimpa = resultado.mensagem;
-                    // Limpa a string removendo '```html' do início e '```' do final
-                    if (typeof mensagemLimpa === 'string') {
-                        mensagemLimpa = mensagemLimpa.replace(/^```html\s*/, '').trim();
-                        mensagemLimpa = mensagemLimpa.replace(/\s*```$/, '').trim();
+                    // Se o envio do contrato for um sucesso, carrega o email-sucesso.html
+                    try {
+                        const successHtmlResponse = await fetch("email-sucesso.html");
+                        if (successHtmlResponse.ok) {
+                            const successHtmlContent = await successHtmlResponse.text();
+                            mensagem.innerHTML = successHtmlContent;
+                            // Reset color to allow loaded HTML styles to take effect, or you can set a specific color for the success message HTML.
+                            mensagem.style.color = "initial"; 
+                        } else {
+                            // Fallback if email-sucesso.html cannot be loaded
+                            mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise.";
+                            mensagem.style.color = "green";
+                        }
+                    } catch (fetchError) {
+                        // Fallback if there's a network error fetching email-sucesso.html
+                        console.error("Erro ao carregar email-sucesso.html:", fetchError);
+                        mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise.";
+                        mensagem.style.color = "green";
                     }
 
-                    mensagem.textContent = mensagemLimpa || "Análise enviada com sucesso.";
-                    mensagem.style.color = "green";
                     formulario.reset(); // Limpa o formulário após o sucesso
                     // Reset também os campos de email fora do formulário se desejar
                     emailInput.value = '';
