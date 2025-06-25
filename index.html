@@ -24,6 +24,7 @@
             padding: 40px; /* Padding padrão para telas maiores */
             max-width: 600px;
             margin: auto;
+            position: relative; /* Para o posicionamento absoluto do overlay */
         }
 
         /* Estilo para a imagem - agora posicionada diretamente no corpo e centralizada */
@@ -211,14 +212,86 @@
             cursor: not-allowed;
         }
 
-        #mensagem-retorno {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #2c3e50;
+        /* Estilos para o contêiner principal do conteúdo */
+        .main-content-wrapper {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Quando o overlay de sucesso está ativo, esconde o conteúdo principal */
+        body.show-success-overlay .main-content-wrapper {
+            opacity: 0;
+            pointer-events: none; /* Desabilita interações */
+            display: none; /* Esconde completamente para remover do fluxo do documento */
+        }
+
+        /* Estilos para o contêiner da mensagem de sucesso (overlay) */
+        #mensagem-retorno { /* Este agora é exclusivamente o overlay */
+            position: fixed; /* Fixa na viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+            display: flex; /* Para centralizar o conteúdo */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Garante que fique por cima de tudo */
+            visibility: hidden; /* Inicialmente oculto */
+            opacity: 0; /* Inicialmente transparente */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        /* Quando a mensagem de sucesso está presente, o overlay fica visível */
+        #mensagem-retorno:not(:empty) {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Styles for the success message container (from email-sucesso.html) */
+        .success-message-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            /* Remover margin: 40px auto; pois o flexbox do #mensagem-retorno já centraliza */
             text-align: center;
+        }
+        .success-message-container h1 {
+            color: #28a745; /* Verde para sucesso */
+            margin-bottom: 20px;
+        }
+        .success-message-container p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .success-exit-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .success-exit-button:hover {
+            background-color: #2980b9;
         }
 
         /* ======================================= */
+        /* Estilo para a nova área de mensagem de status/erro */
+        #status-message-area {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            /* Cor padrão, pode ser alterada via JS */
+            color: #2c3e50; 
+        }
+
         /* MEDIA QUERIES - RESPONSIVIDADE          */
         /* ======================================= */
 
@@ -255,218 +328,187 @@
                 font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
             }
         }
-
-        /* Styles for the success message container (from email-sucesso.html) */
-        .success-message-container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
-            margin: 40px auto; /* Centered with top/bottom margin */
-            text-align: center;
-        }
-        .success-message-container h1 {
-            color: #28a745; /* Verde para sucesso */
-            margin-bottom: 20px;
-        }
-        .success-message-container p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .success-exit-button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-            cursor: pointer;
-        }
-        .success-exit-button:hover {
-            background-color: #2980b9;
-        }
     </style>
 </head>
 <body>
-    <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
+    <div class="main-content-wrapper">
+        <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
 
-    <div class="introduction">
-        <p>
-            Sou a Dra. Cláusula, uma Inteligência Artificial avançada, desenvolvida para ser sua especialista em análise de contratos. Meu objetivo é proporcionar clareza e segurança jurídica em seus documentos, transformando a complexidade em informações claras e acionáveis.
-        </p>
-        <p>Com meus algoritmos, você obtém uma análise detalhada e imparcial do seu contrato, sob a perspectiva que você indicar. Nossa análise abrangente inclui:</p>
-        <ul>
-            <li>Identificação de <strong>pontos positivos e negativos</strong> específicos para sua posição no contrato.</li>
-            <li>Avaliação da <strong>segurança das cláusulas de garantia</strong> e cumprimento de obrigações.</li>
-            <li>Análise aprofundada do <strong>tratamento de inadimplência e descumprimento</strong> de termos.</li>
-            <li><strong>Sugestões de alterações</strong> e inclusões de novas cláusulas para proteger seus interesses.</li>
-            <li><strong>Propostas de redação</strong> para cláusulas substitutas, garantindo precisão jurídica.</li>
-        </ul>
-        <p>
-            Antes de iniciar à sua análise, por favor, confira nosso termo de confidencialidade.
-        </p>
-    </div>
+        <div class="introduction">
+            <p>
+                Sou a Dra. Cláusula, uma Inteligência Artificial avançada, desenvolvida para ser sua especialista em análise de contratos. Meu objetivo é proporcionar clareza e segurança jurídica em seus documentos, transformando a complexidade em informações claras e acionáveis.
+            </p>
+            <p>Com meus algoritmos, você obtém uma análise detalhada e imparcial do seu contrato, sob a perspectiva que você indicar. Nossa análise abrangente inclui:</p>
+            <ul>
+                <li>Identificação de <strong>pontos positivos e negativos</strong> específicos para sua posição no contrato.</li>
+                <li>Avaliação da <strong>segurança das cláusulas de garantia</strong> e cumprimento de obrigações.</li>
+                <li>Análise aprofundada do <strong>tratamento de inadimplência e descumprimento</strong> de termos.</li>
+                <li><strong>Sugestões de alterações</strong> e inclusões de novas cláusulas para proteger seus interesses.</li>
+                <li><strong>Propostas de redação</strong> para cláusulas substitutas, garantindo precisão jurídica.</li>
+            </ul>
+            <p>
+                Antes de iniciar à sua análise, por favor, confira nosso termo de confidencialidade.
+            </p>
+        </div>
 
-    <div class="privacy-call-to-action">
-      <p>
-        <button id="showPrivacyPolicyButton" class="privacy-button">
-          Confira nosso Termo de Confidencialidade
-        </button>
-      </p>
-    </div>
+        <div class="privacy-call-to-action">
+          <p>
+            <button id="showPrivacyPolicyButton" class="privacy-button">
+              Confira nosso Termo de Confidencialidade
+            </button>
+          </p>
+        </div>
 
-    <div id="privacyPolicy" class="privacy-policy-section" style="display: none;">
-      <h2>Política de Privacidade e Termo de Confidencialidade</h2>
+        <div id="privacyPolicy" class="privacy-policy-section" style="display: none;">
+          <h2>Política de Privacidade e Termo de Confidencialidade</h2>
 
-      <h3>1. Introdução</h3>
-      <p>Esta Política de Privacidade tem como objetivo informar como coletamos, utilizamos, armazenamos e protegemos seus dados pessoais e documentos enviados para análise contratual. Valorizamos a sua privacidade, a proteção dos seus dados e assumimos o compromisso com a confidencialidade das informações.</p>
-      <p>Ao utilizar nossos serviços, você concorda com os termos aqui descritos.</p>
+          <h3>1. Introdução</h3>
+          <p>Esta Política de Privacidade tem como objetivo informar como coletamos, utilizamos, armazenamos e protegemos seus dados pessoais e documentos enviados para análise contratual. Valorizamos a sua privacidade, a proteção dos seus dados e assumimos o compromisso com a confidencialidade das informações.</p>
+          <p>Ao utilizar nossos serviços, você concorda com os termos aqui descritos.</p>
 
-      
-      <h3>2. Coleta de Dados</h3>
-      <p>Coletamos as seguintes informações quando você utiliza nosso site:</p>
-      <ul>
-        <li><strong>Dados pessoais:</strong> Nome, e-mail, telefone (se informado) e informações relacionadas à sua participação no contrato (ex.: comprador, vendedor, prestador, etc.);</li>
-        <li><strong>Documentos:</strong> Contratos, anexos e arquivos enviados voluntariamente para análise;</li>
-        <li><strong>Dados de navegação:</strong> Cookies, endereço IP, geolocalização e dados de interação com o site (para melhoria da experiência e segurança).</li>
-      </ul>
+          
+          <h3>2. Coleta de Dados</h3>
+          <p>Coletamos as seguintes informações quando você utiliza nosso site:</p>
+          <ul>
+            <li><strong>Dados pessoais:</strong> Nome, e-mail, telefone (se informado) e informações relacionadas à sua participação no contrato (ex.: comprador, vendedor, prestador, etc.);</li>
+            <li><strong>Documentos:</strong> Contratos, anexos e arquivos enviados voluntariamente para análise;</li>
+            <li><strong>Dados de navegação:</strong> Cookies, endereço IP, geolocalização e dados de interação com o site (para melhoria da experiência e segurança).</li>
+          </ul>
 
-      
-      <h3>3. Finalidade do Tratamento de Dados</h3>
-      <p>Seus dados e documentos são utilizados exclusivamente para:</p>
-      <ul>
-        <li>Realizar a análise contratual conforme solicitado;</li>
-        <li>Gerar o parecer ou retorno da análise;</li>
-        <li>Cumprir obrigações legais e regulatórias, se aplicável;</li>
-        <li>Melhorar nossos serviços e sua experiência no site;</li>
-        <li>Enviar comunicações relacionadas aos nossos serviços (opcional e sempre com seu consentimento).</li>
-      </ul>
+          
+          <h3>3. Finalidade do Tratamento de Dados</h3>
+          <p>Seus dados e documentos são utilizados exclusivamente para:</p>
+          <ul>
+            <li>Realizar a análise contratual conforme solicitado;</li>
+            <li>Gerar o parecer ou retorno da análise;</li>
+            <li>Cumprir obrigações legais e regulatórias, se aplicável;</li>
+            <li>Melhorar nossos serviços e sua experiência no site;</li>
+            <li>Enviar comunicações relacionadas aos nossos serviços (opcional e sempre com seu consentimento).</li>
+          </ul>
 
-      
-      <h3>4. Confidencialidade e Segurança das Informações</h3>
-      <p>Nos comprometemos a:</p>
-      <ul>
-        <li>Manter total sigilo sobre os documentos e dados fornecidos;</li>
-        <li>Não divulgar, compartilhar, vender ou repassar seus dados a terceiros, salvo quando exigido por lei;</li>
-        <li>Adotar medidas técnicas e administrativas capazes de proteger os dados pessoais e os documentos contra acessos não autorizados, vazamentos, alterações e destruição;</li>
-        <li>Armazenar os documentos apenas pelo tempo necessário para a prestação do serviço contratado ou para cumprimento de obrigações legais.</li>
-      </ul>
+          
+          <h3>4. Confidencialidade e Segurança das Informações</h3>
+          <p>Nos comprometemos a:</p>
+          <ul>
+            <li>Manter total sigilo sobre os documentos e dados fornecidos;</li>
+            <li>Não divulgar, compartilhar, vender ou repassar seus dados a terceiros, salvo quando exigido por lei;</li>
+            <li>Adotar medidas técnicas e administrativas capazes de proteger os dados pessoais e os documentos contra acessos não autorizados, vazamentos, alterações e destruição;</li>
+            <li>Armazenar os documentos apenas pelo tempo necessário para a prestação do serviço contratado ou para cumprimento de obrigações legais.</li>
+          </ul>
 
-      
-      <h3>5. Armazenamento e Eliminação dos Dados</h3>
-      <p>Seus dados e documentos ficam armazenados em ambiente seguro e controlado;</p>
-      <p>Após a conclusão da análise, os documentos poderão ser excluídos definitivamente, salvo se houver obrigação legal que exija sua retenção por período específico;</p>
-      <p>Você pode solicitar, a qualquer momento, a exclusão de seus dados e documentos.</p>
+          
+          <h3>5. Armazenamento e Eliminação dos Dados</h3>
+          <p>Seus dados e documentos ficam armazenados em ambiente seguro e controlado;</p>
+          <p>Após a conclusão da análise, os documentos poderão ser excluídos definitivamente, salvo se houver obrigação legal que exija sua retenção por período específico;</p>
+          <p>Você pode solicitar, a qualquer momento, a exclusão de seus dados e documentos.</p>
 
-      
-      <h3>6. Compartilhamento de Dados</h3>
-      <p>Não compartilhamos seus dados com terceiros, salvo nas seguintes hipóteses:</p>
-      <ul>
-        <li>Cumprimento de obrigações legais, regulatórias ou ordens judiciais;</li>
-        <li>Prestadores de serviços estritamente necessários para a operacionalização do site, que também estão contratualmente obrigados a manter sigilo e segurança dos dados.</li>
-      </ul>
+          
+          <h3>6. Compartilhamento de Dados</h3>
+          <p>Não compartilhamos seus dados com terceiros, salvo nas seguintes hipóteses:</p>
+          <ul>
+            <li>Cumprimento de obrigações legais, regulatórias ou ordens judiciais;</li>
+            <li>Prestadores de serviços estritamente necessários para a operacionalização do site, que também estão contratualmente obrigados a manter sigilo e segurança dos dados.</li>
+          </ul>
 
-      
-      <h3>7. Seus Direitos como Titular dos Dados</h3>
-      <p>Nos termos da LGPD, você tem direito a:</p>
-      <ul>
-        <li>Confirmar a existência de tratamento dos seus dados;</li>
-        <li>Acessar seus dados;</li>
-        <li>Corrigir dados incompletos, inexatos ou desatualizados;</li>
-        <li>Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade;</li>
-        <li>Revogar o consentimento, quando aplicável.</li>
-      </ul>
-      <p>Solicitações podem ser feitas pelo nosso canal de atendimento: [e-mail de contato] ou [formulário no site].</p>
+          
+          <h3>7. Seus Direitos como Titular dos Dados</h3>
+          <p>Nos termos da LGPD, você tem direito a:</p>
+          <ul>
+            <li>Confirmar a existência de tratamento dos seus dados;</li>
+            <li>Acessar seus dados;</li>
+            <li>Corrigir dados incompletos, inexatos ou desatualizados;</li>
+            <li>Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade;</li>
+            <li>Revogar o consentimento, quando aplicável.</li>
+          </ul>
+          <p>Solicitações podem ser feitas pelo nosso canal de atendimento: [e-mail de contato] ou [formulário no site].</p>
 
-      
-      <h3>8. Cookies e Dados de Navegação</h3>
-      <p>Utilizamos cookies para:</p>
-      <ul>
-        <li>Melhorar a sua experiência de navegação;</li>
-        <li>Realizar análises estatísticas;</li>
-        <li>Garantir funcionalidades essenciais do site.</li>
-      </ul>
-      <p>Você pode gerenciar ou desabilitar cookies nas configurações do seu navegador.</p>
+          
+          <h3>8. Cookies e Dados de Navegação</h3>
+          <p>Utilizamos cookies para:</p>
+          <ul>
+            <li>Melhorar a sua experiência de navegação;</li>
+            <li>Realizar análises estatísticas;</li>
+            <li>Garantir funcionalidades essenciais do site.</li>
+          </ul>
+          <p>Você pode gerenciar ou desabilitar cookies nas configurações do seu navegador.</p>
 
-      
-      <h3>9. Alterações na Política</h3>
-      <p>Podemos atualizar esta Política periodicamente para refletir mudanças nos nossos processos, legislação ou aprimoramento dos nossos serviços. Recomendamos a leitura periódica deste documento.</p>
+          
+          <h3>9. Alterações na Política</h3>
+          <p>Podemos atualizar esta Política periodicamente para refletir mudanças nos nossos processos, legislação ou aprimoramento dos nossos serviços. Recomendamos a leitura periódica deste documento.</p>
 
-      
-      <h3>10. Contato</h3>
-      <p>Em caso de dúvidas, solicitações ou exercício dos seus direitos, entre em contato através de:</p>
-      <ul>
-        <li>E-mail: dra.clausula@gmail.com</li>
-        <li>Responsável pelo Tratamento dos Dados: Depto. TI</li>
-      </ul>
+          
+          <h3>10. Contato</h3>
+          <p>Em caso de dúvidas, solicitações ou exercício dos seus direitos, entre em contato através de:</p>
+          <ul>
+            <li>E-mail: dra.clausula@gmail.com</li>
+            <li>Responsável pelo Tratamento dos Dados: Depto. TI</li>
+          </ul>
 
-      
-      <h3>Termo de Compromisso de Confidencialidade</h3>
-      <p>Reafirmamos nosso compromisso de que todas as informações e documentos fornecidas pelos usuários serão tratados com absoluto sigilo e utilizados única e exclusivamente para os fins de análise contratual, não sendo repassados, divulgados ou compartilhados, salvo quando houver determinação legal.</p>
+          
+          <h3>Termo de Compromisso de Confidencialidade</h3>
+          <p>Reafirmamos nosso compromisso de que todas as informações e documentos fornecidas pelos usuários serão tratados com absoluto sigilo e utilizados única e exclusivamente para os fins de análise contratual, não sendo repassados, divulgados ou compartilhados, salvo quando houver determinação legal.</p>
 
-      
-      <p>✔ Aceite</p>
-      <p>Ao utilizar este site e enviar seus dados e documentos, você declara estar ciente e de acordo com os termos desta Política de Privacidade e Confidencialidade.</p>
+          
+          <p>✔ Aceite</p>
+          <p>Ao utilizar este site e enviar seus dados e documentos, você declara estar ciente e de acordo com os termos desta Política de Privacidade e Confidencialidade.</p>
 
-      <button id="hidePrivacyPolicyButton" class="privacy-button">Fechar Termo</button>
-    </div>
+          <button id="hidePrivacyPolicyButton" class="privacy-button">Fechar Termo</button>
+        </div>
 
-    <!-- Nova seção para os campos de e-mail e o botão de pagamento -->
-    <div class="payment-email-section">
-        <label for="email">Seu E-mail para Pagamento e Análise:</label>
-        <input type="email" id="email" name="email" required>
-        <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
+        <!-- Nova seção para os campos de e-mail e o botão de pagamento -->
+        <div class="payment-email-section">
+            <label for="email">Seu E-mail para Pagamento e Análise:</label>
+            <input type="email" id="email" name="email" required>
+            <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
 
-        <label for="confirmEmail">Confirmar E-mail:</label>
-        <input type="email" id="confirmEmail" name="confirmEmail" required>
-        <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
+            <label for="confirmEmail">Confirmar E-mail:</label>
+            <input type="email" id="confirmEmail" name="confirmEmail" required>
+            <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
 
-        <button type="button" id="paymentButton" class="payment-button">
-            Realizar Pagamento
-        </button>
-    </div>
-    <!-- Fim da nova seção -->
+            <button type="button" id="paymentButton" class="payment-button">
+                Realizar Pagamento
+            </button>
+        </div>
+        <!-- Fim da nova seção -->
 
-    <!-- O formulário principal (questionário) começa desabilitado -->
-    <form id="formulario" class="disabled-form">
-        <label for="nome">Seu Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-        <!-- Os campos de email foram movidos para fora deste formulário -->
-        
-        <label for="parte">Qual o seu papel no contrato?</label>
-        <select id="parte" name="parte" required>
-            <option value="" selected disabled>Selecione uma opção...</option>
-            <option value="comprador">Comprador</option>
-            <option value="vendedor">Vendedor</option>
-            <option value="contratante">Contratante</option>
-            <option value="contratado">Contratado</option>
-            <option value="locador">Locador</option>
-            <option value="locatario">Locatário</option>
-            <option value="credor">Credor</option>
-            <option value="devedor">Devedor</option>
-            <option value="outorgante">Outorgante</option>
-            <option value="outorgado">Outorgado</option>
-            <option value="cessionario">Cessionario</option>
-            <option value="cedente">Cedente</option>
-        </select>
+        <!-- O formulário principal (questionário) começa desabilitado -->
+        <form id="formulario" class="disabled-form">
+            <label for="nome">Seu Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            <!-- Os campos de email foram movidos para fora deste formulário -->
+            
+            <label for="parte">Qual o seu papel no contrato?</label>
+            <select id="parte" name="parte" required>
+                <option value="" selected disabled>Selecione uma opção...</option>
+                <option value="comprador">Comprador</option>
+                <option value="vendedor">Vendedor</option>
+                <option value="contratante">Contratante</option>
+                <option value="contratado">Contratado</option>
+                <option value="locador">Locador</option>
+                <option value="locatario">Locatário</option>
+                <option value="credor">Credor</option>
+                <option value="devedor">Devedor</option>
+                <option value="outorgante">Outorgante</option>
+                <option value="outorgado">Outorgado</option>
+                <option value="cessionario">Cessionario</option>
+                <option value="cedente">Cedente</option>
+            </select>
 
-        <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
-        <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
+            <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
+            <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
 
-        <button type="submit" id="submitButton" disabled>Enviar para Análise</button>
-    </form>
+            <button type="submit" id="submitButton" disabled>Enviar para Análise</button>
+        </form>
+    </div> <!-- Fim de .main-content-wrapper -->
 
-    <div id="mensagem-retorno"></div>
+    <div id="status-message-area"></div> <!-- Nova div para mensagens de status/erro -->
+    <div id="mensagem-retorno"></div> <!-- Este é o overlay para a mensagem de sucesso -->
 
     <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
-        const mensagem = document.getElementById("mensagem-retorno");
+        const statusMessageArea = document.getElementById("status-message-area"); // Nova referência
+        const mensagemRetornoOverlay = document.getElementById("mensagem-retorno"); // Renomeado para clareza
         const emailInput = document.getElementById("email");
         const emailError = document.getElementById("email-error");
         const confirmEmailInput = document.getElementById("confirmEmail");
@@ -477,12 +519,15 @@
         const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
         const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
         const privacyPolicySection = document.getElementById("privacyPolicy");
+        const mainContentWrapper = document.querySelector(".main-content-wrapper"); 
 
         // URL BASE DA SUA API NO RENDER - SUBSTITUA PELA URL REAL DA SUA API!
         const API_BASE_URL = "https://contrato-analisador-api.onrender.com"; // Ex: https://dra-clausula-api.onrender.com
         // Gera um user_id único para esta sessão. Isso é armazenado no localStorage para persistir.
         // Em um sistema de login, este user_id viria do login.
         const USER_ID_KEY = 'draClausulaUserId';
+        const USER_EMAIL_KEY = 'draClausulaUserEmail'; // Nova chave para o e-mail
+
         let userId = localStorage.getItem(USER_ID_KEY);
         if (!userId) {
             userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15);
@@ -514,30 +559,29 @@
         // Função para verificar o status do pagamento no backend (Firestore)
         async function checkPaymentStatus(currentUserId) {
             try {
-                mensagem.textContent = "Verificando status do pagamento...";
-                mensagem.style.color = "#FFD700"; // Amarelo para verificação
+                statusMessageArea.textContent = "Verificando status do pagamento...";
+                statusMessageArea.style.color = "#FFD700"; // Amarelo para verificação
 
                 const response = await fetch(`${API_BASE_URL}/api/pagamento/verificar-status?user_id=${currentUserId}`);
                 const data = await response.json();
 
                 if (response.ok && data.status === "approved") {
                     toggleForm(true); // Habilita o formulário
-                    mensagem.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
-                    mensagem.style.color = "green";
+                    statusMessageArea.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
+                    statusMessageArea.style.color = "green";
                     paymentButton.style.display = 'none'; // Esconde o botão de pagamento
                     return true;
                 } else {
-                    // ALTERAÇÃO AQUI: Mensagem inicial para pagamento não confirmado
-                    mensagem.textContent = "Faça sua Análise"; 
-                    mensagem.style.color = "orange"; // Você pode mudar a cor se desejar
-                    paymentButton.style.display = 'block'; // Garante que o botão de pagamento esteja visível
-                    paymentButton.disabled = false; // Reabilita o botão
-                    toggleForm(false); // Mantém o formulário desabilitado
+                    statusMessageArea.textContent = "Faça sua Análise"; 
+                    statusMessageArea.style.color = "orange";
+                    paymentButton.style.display = 'block'; 
+                    paymentButton.disabled = false; 
+                    toggleForm(false); 
                     return false;
                 }
             } catch (error) {
-                mensagem.textContent = "Erro ao verificar status do pagamento. Tente novamente.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Erro ao verificar status do pagamento. Tente novamente.";
+                statusMessageArea.style.color = "red";
                 paymentButton.style.display = 'block';
                 paymentButton.disabled = false;
                 console.error("Erro ao verificar status de pagamento:", error);
@@ -546,8 +590,22 @@
         }
         
         // Verifica o status do pagamento ao carregar a página
-        // Isso é importante se o usuário já pagou e retorna à página.
         window.addEventListener('load', () => {
+            // Carrega o e-mail do localStorage ao carregar a página
+            const storedEmail = localStorage.getItem(USER_EMAIL_KEY);
+            if (storedEmail) {
+                emailInput.value = storedEmail;
+                confirmEmailInput.value = storedEmail;
+                console.log("E-mail carregado do localStorage:", storedEmail);
+                // Valida o e-mail carregado para exibir/esconder erros se houver
+                if (!validateEmail(storedEmail)) {
+                    emailError.style.display = "block";
+                } else {
+                    emailError.style.display = "none";
+                }
+                confirmEmailError.style.display = "none"; // Se for o mesmo, não há erro de confirmação
+            }
+
             checkPaymentStatus(userId);
         });
 
@@ -567,16 +625,16 @@
 
         // Evento para o botão de pagamento
         paymentButton.addEventListener("click", async function() {
-            mensagem.textContent = "Verificando e-mail e preparando o pagamento...";
-            mensagem.style.color = "#3498db"; // Azul para status de carregamento
+            statusMessageArea.textContent = "Verificando e-mail e preparando o pagamento...";
+            statusMessageArea.style.color = "#3498db"; // Azul para status de carregamento
             paymentButton.disabled = true; // Desabilita o botão de pagamento para evitar cliques múltiplos
 
             const userEmail = emailInput.value; 
             // Valida o formato do e-mail antes de prosseguir para o pagamento
             if (!validateEmail(userEmail)) {
                 emailError.style.display = "block";
-                mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail' antes de prosseguir com o pagamento.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail' antes de prosseguir com o pagamento.";
+                statusMessageArea.style.color = "red";
                 paymentButton.disabled = false; // Reabilita o botão
                 return;
             } else {
@@ -586,14 +644,14 @@
             // Verifica se os e-mails de confirmação coincidem antes de prosseguir
             if (confirmEmailInput.value.trim() === "") {
                 confirmEmailError.style.display = "block";
-                mensagem.textContent = "Por favor, confirme seu e-mail antes de prosseguir com o pagamento.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Por favor, confirme seu e-mail antes de prosseguir com o pagamento.";
+                statusMessageArea.style.color = "red";
                 paymentButton.disabled = false; // Reabilita o botão
                 return;
             } else if (!doEmailsMatch()) {
                 confirmEmailError.style.display = "block";
-                mensagem.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique antes de prosseguir com o pagamento.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique antes de prosseguir com o pagamento.";
+                statusMessageArea.style.color = "red";
                 paymentButton.disabled = false; // Reabilita o botão
                 return;
             } else {
@@ -603,6 +661,9 @@
             // Log para depuração: verifique o valor do e-mail sendo enviado para a API
             console.log("Email a ser enviado para a API de pagamento:", userEmail);
             console.log("User ID a ser enviado para a API de pagamento:", userId);
+
+            // Salva o e-mail no localStorage antes de prosseguir com o pagamento
+            localStorage.setItem(USER_EMAIL_KEY, userEmail);
 
             try {
                 // Requisição para SUA API para criar a preferência de pagamento no Mercado Pago
@@ -624,17 +685,16 @@
                 if (response.ok) {
                     const checkoutUrl = data.checkout_url;
                     if (checkoutUrl) {
-                        mensagem.textContent = "Redirecionando para a página de pagamento do Mercado Pago... Por favor, conclua o pagamento na nova aba e feche-a para retornar.";
-                        mensagem.style.color = "#28a745"; // Verde para redirecionamento
+                        statusMessageArea.textContent = "Redirecionando para a página de pagamento do Mercado Pago... Por favor, conclua o pagamento na nova aba e feche-a para retornar.";
+                        statusMessageArea.style.color = "#28a745"; // Verde para redirecionamento
 
                         // Abre o checkout em uma nova aba.
                         // O _blank é importante para manter o seu frontend aberto enquanto o usuário paga.
                         window.open(checkoutUrl, '_blank'); 
 
                         // --- LÓGICA DE POLLING APÓS REDIRECIONAMENTO ---
-                        // Remove a simulação com setTimeout
-                        mensagem.textContent = "Aguardando confirmação do pagamento... Por favor, conclua o pagamento na nova aba e feche-a para retornar aqui.";
-                        mensagem.style.color = "#FFA500"; // Laranja para status pendente
+                        statusMessageArea.textContent = "Aguardando confirmação do pagamento... Por favor, conclua o pagamento na nova aba e feche-a para retornar aqui.";
+                        statusMessageArea.style.color = "#FFA500"; // Laranja para status pendente
 
                         // Inicia o polling para verificar o status do pagamento
                         let pollInterval = setInterval(async () => {
@@ -646,13 +706,12 @@
                         }, 5000); // Verifica a cada 5 segundos
                         
                         // Limpa o polling após um tempo máximo para evitar loops infinitos se algo der errado
-                        // Ajuste este tempo conforme a expectativa de pagamento (Ex: 5 minutos = 300000ms)
                         setTimeout(() => {
                             if (pollInterval) {
                                 clearInterval(pollInterval);
                                 if (!formulario.classList.contains('enabled')) {
-                                    mensagem.textContent = "Tempo de espera pelo pagamento esgotado. Por favor, verifique o status ou tente novamente.";
-                                    mensagem.style.color = "red";
+                                    statusMessageArea.textContent = "Tempo de espera pelo pagamento esgotado. Por favor, verifique o status ou tente novamente.";
+                                    statusMessageArea.style.color = "red";
                                     paymentButton.disabled = false;
                                     paymentButton.style.display = 'block';
                                 }
@@ -662,18 +721,18 @@
 
 
                     } else {
-                        mensagem.textContent = "Erro: Link de checkout não recebido do servidor. Contate o suporte.";
-                        mensagem.style.color = "red";
+                        statusMessageArea.textContent = "Erro: Link de checkout não recebido do servidor. Contate o suporte.";
+                        statusMessageArea.style.color = "red";
                         paymentButton.disabled = false; // Reabilita o botão
                     }
                 } else {
-                    mensagem.textContent = data.detail || "Erro ao iniciar pagamento. Tente novamente ou contate o suporte.";
-                    mensagem.style.color = "red";
+                    statusMessageArea.textContent = data.detail || "Erro ao iniciar pagamento. Tente novamente ou contate o suporte.";
+                    statusMessageArea.style.color = "red";
                     paymentButton.disabled = false; // Reabilita o botão
                 }
             } catch (error) {
-                mensagem.textContent = "Erro de conexão ao servidor para iniciar pagamento. Verifique sua rede e tente novamente.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Erro de conexão ao servidor para iniciar pagamento. Verifique sua rede e tente novamente.";
+                statusMessageArea.style.color = "red";
                 paymentButton.disabled = false; // Reabilita o botão
                 console.error("Erro ao chamar API de pagamento:", error);
             }
@@ -725,16 +784,16 @@
 
             // Garante que o formulário só pode ser submetido se estiver habilitado (após "pagamento")
             if (!formulario.classList.contains('enabled')) {
-                mensagem.textContent = "Por favor, realize o pagamento para enviar a análise.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Por favor, realize o pagamento para enviar a análise.";
+                statusMessageArea.style.color = "red";
                 return;
             }
 
             // Validações de e-mail ao submeter o formulário (redundante, mas seguro se o usuário puder editar)
             if (!validateEmail(emailInput.value)) {
                 emailError.style.display = "block";
-                mensagem.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
+                statusMessageArea.style.color = "red";
                 return;
             } else {
                 emailError.style.display = "none";
@@ -742,8 +801,8 @@
 
             if (!doEmailsMatch()) {
                 confirmEmailError.style.display = "block";
-                mensagem.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique.";
+                statusMessageArea.style.color = "red";
                 return;
             } else {
                 confirmEmailError.style.display = "none";
@@ -754,8 +813,8 @@
             formData.append('user_id', userId);
             formData.append('email', emailInput.value); 
 
-            mensagem.textContent = "Processando sua análise... Por favor, aguarde.";
-            mensagem.style.color = "#3498db";
+            statusMessageArea.textContent = "Processando sua análise... Por favor, aguarde.";
+            statusMessageArea.style.color = "#3498db";
             submitButton.disabled = true; // Desabilita o botão de envio durante o processamento
 
             try {
@@ -772,22 +831,25 @@
                         const successHtmlResponse = await fetch("email-sucesso.html");
                         if (successHtmlResponse.ok) {
                             const successHtmlContent = await successHtmlResponse.text();
-                            mensagem.innerHTML = successHtmlContent;
-                            // Reset color to allow loaded HTML styles to take effect.
-                            mensagem.style.color = "initial"; 
+                            mensagemRetornoOverlay.innerHTML = successHtmlContent;
+                            // Adiciona a classe ao body para esconder o conteúdo principal e mostrar o overlay
+                            document.body.classList.add('show-success-overlay'); 
+                            statusMessageArea.textContent = ""; // Limpa a mensagem de status da área normal
                             console.log("email-sucesso.html carregado e exibido com sucesso.");
 
                             // ADICIONA EVENT LISTENER AO BOTÃO 'SAIR' APÓS CARREGAR O HTML
                             const exitButton = document.getElementById("exitSuccessButton");
                             if (exitButton) {
                                 exitButton.addEventListener("click", function() {
-                                    mensagem.innerHTML = ''; // Limpa a mensagem de sucesso
+                                    mensagemRetornoOverlay.innerHTML = ''; // Limpa o conteúdo do overlay
+                                    document.body.classList.remove('show-success-overlay'); // Remove a classe do body
                                     formulario.reset(); // Reseta o formulário
                                     emailInput.value = ''; // Limpa os campos de email
                                     confirmEmailInput.value = '';
                                     
                                     // --- LÓGICA PARA REQUERER NOVO PAGAMENTO ---
                                     localStorage.removeItem(USER_ID_KEY); // Remove o user_id do localStorage
+                                    localStorage.removeItem(USER_EMAIL_KEY); // Remove o e-mail do localStorage
                                     userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); // Gera um novo user_id
                                     localStorage.setItem(USER_ID_KEY, userId); // Salva o novo user_id
                                     console.log("Novo User ID gerado após clique em 'Sair': ", userId);
@@ -797,30 +859,34 @@
                                     console.log("Botão 'Sair' clicado. Formulário resetado e status de pagamento verificado.");
                                 });
                             } else {
-                                console.error("Botão 'exitSuccessButton' não encontrado após carregar email-sucesso.html");
-                                // Fallback se o botão não for encontrado, para não travar o fluxo
-                                mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise.";
-                                mensagem.style.color = "green";
+                                console.error("Botão 'exitSuccessButton' não encontrado após carregar email-sucesso.html. O fluxo pode não ser resetado corretamente.");
+                                // Fallback para resetar o estado se o botão não for encontrado, embora a interação não seja a ideal
+                                mensagemRetornoOverlay.innerHTML = '';
+                                document.body.classList.remove('show-success-overlay');
                                 formulario.reset(); 
                                 emailInput.value = '';
                                 confirmEmailInput.value = '';
                                 localStorage.removeItem(USER_ID_KEY); 
+                                localStorage.removeItem(USER_EMAIL_KEY);
                                 userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
                                 localStorage.setItem(USER_ID_KEY, userId); 
-                                console.log("Novo User ID gerado após análise (fallback): ", userId);
+                                console.log("Novo User ID gerado após análise (fallback - botão não encontrado): ", userId);
                                 checkPaymentStatus(userId); 
+                                statusMessageArea.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Botão de saída não encontrado)";
+                                statusMessageArea.style.color = "orange";
                             }
 
                         } else {
                             // Fallback if email-sucesso.html cannot be loaded (e.g., 404, 500)
-                            mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro ao carregar layout de sucesso: Status " + successHtmlResponse.status + ")";
-                            mensagem.style.color = "orange"; // Changed color for this specific fallback
+                            statusMessageArea.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro ao carregar layout de sucesso: Status " + successHtmlResponse.status + ")";
+                            statusMessageArea.style.color = "orange"; // Changed color for this specific fallback
                             console.error("Falha ao carregar email-sucesso.html. Status:", successHtmlResponse.status, "URL:", successHtmlResponse.url);
-                            // Se o HTML de sucesso não carregar, ainda assim reseta o formulário para permitir nova tentativa
+                            // Reseta o formulário e o estado mesmo com erro no layout de sucesso
                             formulario.reset(); 
                             emailInput.value = '';
                             confirmEmailInput.value = '';
                             localStorage.removeItem(USER_ID_KEY); 
+                            localStorage.removeItem(USER_EMAIL_KEY);
                             userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
                             localStorage.setItem(USER_ID_KEY, userId); 
                             console.log("Novo User ID gerado após análise (fallback 2): ", userId);
@@ -829,12 +895,14 @@
                     } catch (fetchError) {
                         // Fallback if there's a network error during the fetch of email-sucesso.html
                         console.error("Erro de rede ao carregar email-sucesso.html:", fetchError);
-                        mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro de rede ao carregar layout)";
-                        mensagem.style.color = "orange"; // Changed color for this specific fallback
+                        statusMessageArea.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro de rede ao carregar layout)";
+                        statusMessageArea.style.color = "orange"; // Changed color for this specific fallback
+                        // Reseta o formulário e o estado mesmo com erro de rede
                         formulario.reset(); 
                         emailInput.value = '';
-                        confirmEmailInput.value = '';
+                        confirmEmailInput.value = ''; 
                         localStorage.removeItem(USER_ID_KEY); 
+                        localStorage.removeItem(USER_EMAIL_KEY);
                         userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
                         localStorage.setItem(USER_ID_KEY, userId); 
                         console.log("Novo User ID gerado após análise (fallback 3): ", userId);
@@ -847,12 +915,12 @@
                         erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
                         erroLimpo = erroLimpo.replace(/\s*```$/, '').trim(); 
                     }
-                    mensagem.textContent = erroLimpo || "Erro ao enviar análise.";
-                    mensagem.style.color = "red";
+                    statusMessageArea.textContent = erroLimpo || "Erro ao enviar análise.";
+                    statusMessageArea.style.color = "red";
                 }
             } catch (erro) {
-                mensagem.textContent = "Erro de conexão com o servidor de análise.";
-                mensagem.style.color = "red";
+                statusMessageArea.textContent = "Erro de conexão com o servidor de análise.";
+                statusMessageArea.style.color = "red";
             } finally {
                 submitButton.disabled = false; // Reabilita o botão de envio no final
             }
