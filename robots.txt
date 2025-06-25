@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://dra-clausula.onrender.com/sitemap.xml
+Sitemap: https://dra-clausula.onrender.com/meusitemap.xml
