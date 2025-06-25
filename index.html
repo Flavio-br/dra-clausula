@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dra.Cláusula | Análise Inteligente de Contratos</title>
 
-     <!-- SEO Básico Aprimorado -->
-    <meta name="description" content="Dra.Cláusula oferece análise inteligente e segura de contratos com inteligência artificial. Receba revisão detalhada, identifique riscos, sugestões de cláusulas e aumente sua segurança jurídica. Rápido e confiável para compra e venda, locação e mais.">
-    <meta name="keywords" content="análise de contrato, IA, inteligência artificial, revisão de contrato, segurança jurídica, cláusulas contratuais, contrato de compra e venda, contrato de locação, due diligence, advocacia digital, legal tech, análise jurídica, inteligência artificial em direito">
+     <!-- SEO Básico -->
+    <meta name="description" content="Envie seu contrato e receba uma análise inteligente e detalhada com apoio de IA. Rápido e confiável.">
+    <meta name="keywords" content="análise de contrato, IA, inteligência artificial, contrato de compra e venda, cláusulas contratuais, revisão de contrato">
     <meta name="robots" content="index, follow">
 
     <!-- Open Graph (para compartilhamento em redes sociais) -->
@@ -254,6 +254,41 @@
             .payment-email-section input { /* Ajuste para inputs na nova seção */
                 font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
             }
+        }
+
+        /* Styles for the success message container (from email-sucesso.html) */
+        .success-message-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            margin: 40px auto; /* Centered with top/bottom margin */
+            text-align: center;
+        }
+        .success-message-container h1 {
+            color: #28a745; /* Verde para sucesso */
+            margin-bottom: 20px;
+        }
+        .success-message-container p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .success-exit-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .success-exit-button:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
@@ -738,42 +773,79 @@
                         if (successHtmlResponse.ok) {
                             const successHtmlContent = await successHtmlResponse.text();
                             mensagem.innerHTML = successHtmlContent;
-                            // Reset color to allow loaded HTML styles to take effect, or you can set a specific color for the success message HTML.
+                            // Reset color to allow loaded HTML styles to take effect.
                             mensagem.style.color = "initial"; 
+                            console.log("email-sucesso.html carregado e exibido com sucesso.");
+
+                            // ADICIONA EVENT LISTENER AO BOTÃO 'SAIR' APÓS CARREGAR O HTML
+                            const exitButton = document.getElementById("exitSuccessButton");
+                            if (exitButton) {
+                                exitButton.addEventListener("click", function() {
+                                    mensagem.innerHTML = ''; // Limpa a mensagem de sucesso
+                                    formulario.reset(); // Reseta o formulário
+                                    emailInput.value = ''; // Limpa os campos de email
+                                    confirmEmailInput.value = '';
+                                    
+                                    // --- LÓGICA PARA REQUERER NOVO PAGAMENTO ---
+                                    localStorage.removeItem(USER_ID_KEY); // Remove o user_id do localStorage
+                                    userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); // Gera um novo user_id
+                                    localStorage.setItem(USER_ID_KEY, userId); // Salva o novo user_id
+                                    console.log("Novo User ID gerado após clique em 'Sair': ", userId);
+                                    checkPaymentStatus(userId); // Reavalia o status de pagamento para desabilitar o form
+                                    // --- FIM DA LÓGICA ---
+
+                                    console.log("Botão 'Sair' clicado. Formulário resetado e status de pagamento verificado.");
+                                });
+                            } else {
+                                console.error("Botão 'exitSuccessButton' não encontrado após carregar email-sucesso.html");
+                                // Fallback se o botão não for encontrado, para não travar o fluxo
+                                mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise.";
+                                mensagem.style.color = "green";
+                                formulario.reset(); 
+                                emailInput.value = '';
+                                confirmEmailInput.value = '';
+                                localStorage.removeItem(USER_ID_KEY); 
+                                userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
+                                localStorage.setItem(USER_ID_KEY, userId); 
+                                console.log("Novo User ID gerado após análise (fallback): ", userId);
+                                checkPaymentStatus(userId); 
+                            }
+
                         } else {
-                            // Fallback if email-sucesso.html cannot be loaded
-                            mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise.";
-                            mensagem.style.color = "green";
+                            // Fallback if email-sucesso.html cannot be loaded (e.g., 404, 500)
+                            mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro ao carregar layout de sucesso: Status " + successHtmlResponse.status + ")";
+                            mensagem.style.color = "orange"; // Changed color for this specific fallback
+                            console.error("Falha ao carregar email-sucesso.html. Status:", successHtmlResponse.status, "URL:", successHtmlResponse.url);
+                            // Se o HTML de sucesso não carregar, ainda assim reseta o formulário para permitir nova tentativa
+                            formulario.reset(); 
+                            emailInput.value = '';
+                            confirmEmailInput.value = '';
+                            localStorage.removeItem(USER_ID_KEY); 
+                            userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
+                            localStorage.setItem(USER_ID_KEY, userId); 
+                            console.log("Novo User ID gerado após análise (fallback 2): ", userId);
+                            checkPaymentStatus(userId); 
                         }
                     } catch (fetchError) {
-                        // Fallback if there's a network error fetching email-sucesso.html
-                        console.error("Erro ao carregar email-sucesso.html:", fetchError);
-                        mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise.";
-                        mensagem.style.color = "green";
+                        // Fallback if there's a network error during the fetch of email-sucesso.html
+                        console.error("Erro de rede ao carregar email-sucesso.html:", fetchError);
+                        mensagem.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro de rede ao carregar layout)";
+                        mensagem.style.color = "orange"; // Changed color for this specific fallback
+                        formulario.reset(); 
+                        emailInput.value = '';
+                        confirmEmailInput.value = '';
+                        localStorage.removeItem(USER_ID_KEY); 
+                        userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
+                        localStorage.setItem(USER_ID_KEY, userId); 
+                        console.log("Novo User ID gerado após análise (fallback 3): ", userId);
+                        checkPaymentStatus(userId); 
                     }
-
-                    formulario.reset(); // Limpa o formulário após o sucesso
-                    // Reset também os campos de email fora do formulário se desejar
-                    emailInput.value = '';
-                    confirmEmailInput.value = '';
-
-                    // --- INÍCIO DA LÓGICA PARA REQUERER NOVO PAGAMENTO ---
-                    localStorage.removeItem(USER_ID_KEY); // Remove o user_id do localStorage
-                    userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); // Gera um novo user_id
-                    localStorage.setItem(USER_ID_KEY, userId); // Salva o novo user_id
-                    console.log("Novo User ID gerado após análise: ", userId);
-                    
-                    // Reavalia o status de pagamento, que agora será pendente com o novo user_id
-                    checkPaymentStatus(userId); 
-                    // --- FIM DA LÓGICA PARA REQUERER NOVO PAGAMENTO ---
-
-                    // O toggleForm(false) e as exibições dos botões são tratados por checkPaymentStatus agora
 
                 } else {
                     let erroLimpo = resultado.detail || resultado.erro; // Prioriza 'detail' de HTTPException
                     if (typeof erroLimpo === 'string') {
                         erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
-                        erroLimpa = erroLimpo.replace(/\s*```$/, '').trim();
+                        erroLimpo = erroLimpo.replace(/\s*```$/, '').trim(); 
                     }
                     mensagem.textContent = erroLimpo || "Erro ao enviar análise.";
                     mensagem.style.color = "red";
