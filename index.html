@@ -293,7 +293,7 @@
             color: #2c3e50; 
         }
 
-        /* MEDIA QUERIES - RESPONSIVIDADE          */
+        /* MEDIA QUERIES - RESPONSIVIDADE         */
         /* ======================================= */
 
         /* Para telas menores que 768px (geralmente tablets e celulares) */
@@ -457,7 +457,7 @@
         </div>
 
         <!-- Nova seção para os campos de e-mail e o botão de pagamento -->
-        <div class="payment-email-section">
+        <div class="payment-email-section" id="paymentEmailSection">
             <label for="email">Seu E-mail para Pagamento e Análise:</label>
             <input type="email" id="email" name="email" required>
             <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
@@ -521,6 +521,7 @@
         const confirmEmailError = document.getElementById("confirm-email-error");
         const submitButton = document.getElementById("submitButton"); // Botão "Enviar para Análise"
         const paymentButton = document.getElementById("paymentButton"); // Botão "Realizar Pagamento"
+        const paymentEmailSection = document.getElementById("paymentEmailSection"); // Adicionado: Referência à seção inteira de pagamento/email/voucher
 
         const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
         const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
@@ -581,6 +582,30 @@
             return emailInput.value === confirmEmailInput.value;
         }
 
+        // Função para exibir a mensagem de sucesso (o que era email-sucesso.html)
+        function showSuccessOverlay(messageHtml) {
+            mensagemRetornoOverlay.innerHTML = `
+                <div class="success-message-container">
+                    <h1>🎉 Pagamento Confirmado! 🎉</h1>
+                    <p>${messageHtml}</p>
+                    <button class="success-exit-button">Voltar ao Início</button>
+                </div>
+            `;
+            mensagemRetornoOverlay.style.visibility = 'visible';
+            mensagemRetornoOverlay.style.opacity = '1';
+            document.body.classList.add('show-success-overlay'); // Adiciona classe ao body para esconder conteúdo principal
+
+            // Event listener para o botão de saída do overlay
+            document.querySelector('.success-exit-button').addEventListener('click', () => {
+                mensagemRetornoOverlay.style.visibility = 'hidden';
+                mensagemRetornoOverlay.style.opacity = '0';
+                mensagemRetornoOverlay.innerHTML = ''; // Limpa o conteúdo
+                document.body.classList.remove('show-success-overlay'); // Remove a classe
+                window.location.reload(); // Recarrega a página para resetar o estado (ou apenas atualiza a UI)
+            });
+        }
+
+
         // Função para verificar o status do pagamento no backend (Firestore)
         async function checkPaymentStatus(currentUserId) {
             try {
@@ -594,23 +619,13 @@
                     toggleForm(true); // Habilita o formulário
                     statusMessageArea.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
                     statusMessageArea.style.color = "green";
-                    paymentButton.style.display = 'none'; // Esconde o botão de pagamento
-                    // Esconde também os campos de e-mail e voucher se o pagamento já foi aprovado
-                    emailInput.style.display = 'none';
-                    confirmEmailInput.style.display = 'none';
-                    voucherInput.style.display = 'none';
-                    // Esconde as labels correspondentes
-                    document.querySelector('label[for="email"]').style.display = 'none';
-                    document.querySelector('label[for="confirmEmail"]').style.display = 'none';
-                    document.querySelector('label[for="voucherInput"]').style.display = 'none';
-                    emailError.style.display = 'none'; // Garante que erros anteriores sejam escondidos
-                    confirmEmailError.style.display = 'none';
-                    voucherMessage.style.display = 'none';
+                    paymentButton.style.display = 'none'; // Apenas o botão de pagamento é escondido
                     return true;
                 } else {
                     statusMessageArea.textContent = "Faça sua Análise"; 
                     statusMessageArea.style.color = "orange";
-                    paymentButton.style.display = 'block'; 
+                    paymentEmailSection.style.display = 'block'; // Garante que a seção de pagamento esteja visível
+                    paymentButton.style.display = 'block'; // Garante que o botão de pagamento esteja visível
                     paymentButton.disabled = false; 
                     toggleForm(false); 
                     return false;
@@ -618,7 +633,8 @@
             } catch (error) {
                 statusMessageArea.textContent = "Erro ao verificar status do pagamento. Tente novamente.";
                 statusMessageArea.style.color = "red";
-                paymentButton.style.display = 'block';
+                paymentEmailSection.style.display = 'block'; // Garante visibilidade em caso de erro na checagem
+                paymentButton.style.display = 'block'; // Garante visibilidade do botão em caso de erro
                 paymentButton.disabled = false;
                 console.error("Erro ao verificar status de pagamento:", error);
                 return false;
@@ -687,211 +703,136 @@
 
         // Evento para o botão de pagamento
         paymentButton.addEventListener("click", async function() {
-            statusMessageArea.textContent = "Verificando e-mail e preparando o pagamento...";
-            statusMessageArea.style.color = "#3498db"; // Azul para status de carregamento
-            paymentButton.disabled = true; // Desabilita o botão de pagamento para evitar cliques múltiplos
+            // Valida os emails antes de prosseguir com o pagamento
+            let validEmail = validateEmail(emailInput.value);
+            let emailsMatch = doEmailsMatch();
 
-            const userEmail = emailInput.value; 
-            // Valida o formato do e-mail antes de prosseguir para o pagamento
-            if (!validateEmail(userEmail)) {
+            if (!validEmail) {
                 emailError.style.display = "block";
-                statusMessageArea.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail' antes de prosseguir com o pagamento.";
-                statusMessageArea.style.color = "red";
-                paymentButton.disabled = false; // Reabilita o botão
-                return;
             } else {
                 emailError.style.display = "none";
             }
-            
-            // Verifica se os e-mails de confirmação coincidem antes de prosseguir
-            if (confirmEmailInput.value.trim() === "") {
+
+            if (!emailsMatch) {
                 confirmEmailError.style.display = "block";
-                statusMessageArea.textContent = "Por favor, confirme seu e-mail antes de prosseguir com o pagamento.";
-                statusMessageArea.style.color = "red";
-                paymentButton.disabled = false; // Reabilita o botão
-                return;
-            } else if (!doEmailsMatch()) {
-                confirmEmailError.style.display = "block";
-                statusMessageArea.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique antes de prosseguir com o pagamento.";
-                statusMessageArea.style.color = "red";
-                paymentButton.disabled = false; // Reabilita o botão
-                return;
             } else {
                 confirmEmailError.style.display = "none";
             }
 
-            // Log para depuração: verifique o valor do e-mail sendo enviado para a API
-            console.log("Email a ser enviado para a API de pagamento:", userEmail);
-            console.log("User ID a ser enviado para a API de pagamento:", userId);
-            console.log("Preço do item a ser enviado para a API de pagamento:", itemPrice); // Log do preço final
+            if (!validEmail || !emailsMatch) {
+                statusMessageArea.textContent = "Por favor, corrija os erros de e-mail.";
+                statusMessageArea.style.color = "red";
+                return; // Para a execução se a validação falhar
+            }
 
-            // Salva o e-mail no localStorage antes de prosseguir com o pagamento
-            localStorage.setItem(USER_EMAIL_KEY, userEmail);
+            // Armazena o e-mail no localStorage
+            localStorage.setItem(USER_EMAIL_KEY, emailInput.value);
+
+            // Desabilita o botão e mostra mensagem de carregamento
+            paymentButton.disabled = true;
+            statusMessageArea.textContent = "Processando pagamento...";
+            statusMessageArea.style.color = "#FFD700"; // Amarelo para processamento
 
             try {
-                // Requisição para SUA API para criar a preferência de pagamento no Mercado Pago
-                const response = await fetch(`${API_BASE_URL}/api/pagamento/criar-checkout`, {
-                    method: "POST",
+                const response = await fetch(`${API_BASE_URL}/api/pagamento/iniciar`, {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
+                        'Content-Type': 'application/json'
                     },
-                    body: new URLSearchParams({
-                        item_title: "Análise de Contrato Dra. Cláusula",
-                        item_price: itemPrice, // Agora usa a variável itemPrice
-                        user_email: userEmail,
-                        user_id: userId // Envia o user_id para o backend
+                    body: JSON.stringify({
+                        user_id: userId,
+                        email: emailInput.value,
+                        amount: itemPrice, // Usa o preço dinâmico
+                        voucher: voucherInput.value.trim().toUpperCase() // Envia o voucher (se houver)
                     })
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    const checkoutUrl = data.checkout_url;
-                    if (checkoutUrl) {
-                        // Abre o checkout do Mercado Pago em uma nova janela/aba
-                        window.open(checkoutUrl, '_blank');
+                if (response.ok && data.status === "success" && data.payment_url) {
+                    // Redireciona para a URL de pagamento
+                    window.location.href = data.payment_url;
+                } else if (response.ok && data.status === "approved_voucher_no_payment") {
+                    // Voucher de R$0.01 ou valor muito baixo, pagamento já considerado aprovado pelo backend
+                    statusMessageArea.textContent = "Voucher aplicado e acesso liberado! Você pode enviar seu contrato.";
+                    statusMessageArea.style.color = "green";
+                    
+                    // Esconde apenas o botão de pagamento e habilita o formulário
+                    paymentButton.style.display = 'none'; 
+                    toggleForm(true); 
 
-                        // Inicia a verificação de status a cada 3 segundos
-                        const checkInterval = setInterval(async () => {
-                            const paid = await checkPaymentStatus(userId);
-                            if (paid) {
-                                clearInterval(checkInterval); // Para a verificação se o pagamento foi aprovado
-                                console.log("Pagamento aprovado. Intervalo de verificação parado.");
-                                // Exibir a mensagem de sucesso e esconder o main-content-wrapper
-                                mensagemRetornoOverlay.innerHTML = `
-                                    <div class="success-message-container">
-                                        <h1>🚀 Pagamento Confirmado!</h1>
-                                        <p>Sua análise será liberada em breve. Você já pode enviar seu contrato.</p>
-                                        <p>Um e-mail de confirmação foi enviado para <strong>${userEmail}</strong> com os detalhes. Por favor, verifique sua caixa de entrada e spam.</p>
-                                        <button type="button" class="success-exit-button" onclick="location.reload();">
-                                            Concluir e Ir para Análise
-                                        </button>
-                                    </div>
-                                `;
-                                document.body.classList.add('show-success-overlay'); // Adiciona a classe para esconder o conteúdo principal
-                            } else {
-                                // Se não for pago, mas o checkout foi aberto, avisa o usuário para finalizar
-                                statusMessageArea.textContent = "Aguardando confirmação do pagamento. Por favor, conclua a transação no Mercado Pago.";
-                                statusMessageArea.style.color = "blue";
-                            }
-                        }, 3000); // Verifica a cada 3 segundos
-                    } else {
-                        statusMessageArea.textContent = "Erro: URL de checkout não recebida.";
-                        statusMessageArea.style.color = "red";
-                        paymentButton.disabled = false;
-                    }
+                    // Exibe o overlay de sucesso, simulando o email-sucesso.html
+                    showSuccessOverlay("Seu voucher foi aplicado com sucesso! Agora você pode prosseguir para enviar seu contrato para análise.");
+
                 } else {
-                    statusMessageArea.textContent = `Erro ao criar checkout: ${data.message || "Erro desconhecido"}`;
+                    statusMessageArea.textContent = data.message || "Erro ao iniciar o pagamento. Tente novamente.";
                     statusMessageArea.style.color = "red";
-                    paymentButton.disabled = false;
-                    console.error("Erro na resposta da API de checkout:", data);
+                    paymentButton.disabled = false; // Re-habilita o botão
                 }
             } catch (error) {
-                statusMessageArea.textContent = "Erro na comunicação com o servidor de pagamento. Tente novamente.";
+                statusMessageArea.textContent = "Ocorreu um erro inesperado. Verifique sua conexão ou tente mais tarde.";
                 statusMessageArea.style.color = "red";
-                paymentButton.disabled = false;
-                console.error("Erro na chamada da API de pagamento:", error);
+                paymentButton.disabled = false; // Re-habilita o botão
+                console.error("Erro na requisição de pagamento:", error);
             }
         });
 
-        // Event listener para o formulário principal (envio do contrato)
+        // Evento para o botão "Enviar para Análise" (submitButton)
         formulario.addEventListener("submit", async function(event) {
             event.preventDefault(); // Impede o envio padrão do formulário
 
-            // Validação básica dos campos do formulário (nome, papel, arquivo)
-            const nome = document.getElementById("nome").value.trim();
+            // Basic validation for the main form fields
+            const nome = document.getElementById("nome").value;
             const parte = document.getElementById("parte").value;
-            const arquivoInput = document.getElementById("arquivo");
-            const arquivo = arquivoInput.files[0];
+            const arquivo = document.getElementById("arquivo").files[0];
 
             if (!nome || !parte || !arquivo) {
-                statusMessageArea.textContent = "Por favor, preencha todos os campos do formulário (Nome, Papel e Anexo do Contrato).";
+                statusMessageArea.textContent = "Por favor, preencha todos os campos do formulário.";
                 statusMessageArea.style.color = "red";
                 return;
             }
 
-            if (arquivo.size > 20 * 1024 * 1024) { // Limite de 20 MB
-                statusMessageArea.textContent = "O arquivo é muito grande. Por favor, envie um arquivo de até 20MB.";
-                statusMessageArea.style.color = "red";
-                return;
-            }
+            statusMessageArea.textContent = "Enviando contrato para análise...";
+            statusMessageArea.style.color = "#FFD700"; // Amarelo para envio
+            submitButton.disabled = true; // Desabilita o botão de envio
 
-            statusMessageArea.textContent = "Enviando contrato para análise... Por favor, aguarde.";
-            statusMessageArea.style.color = "#3498db"; // Azul para status de carregamento
-            submitButton.disabled = true; // Desabilita o botão para evitar múltiplos envios
-
-            const formData = new FormData();
-            formData.append("user_id", userId);
-            formData.append("user_email", localStorage.getItem(USER_EMAIL_KEY)); // Pega o e-mail do localStorage
-            formData.append("user_name", nome);
-            formData.append("user_role_in_contract", parte);
-            formData.append("contract_file", arquivo);
-
+            // Simulação de envio para a API (substitua pela sua lógica real de upload)
+            // Você precisaria de um endpoint na sua API para receber o arquivo e os dados do formulário
             try {
-                const response = await fetch(`${API_BASE_URL}/api/analisar-contrato`, {
-                    method: "POST",
-                    body: formData,
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('email', localStorage.getItem(USER_EMAIL_KEY)); // Pega o email armazenado
+                formData.append('nome', nome);
+                formData.append('parte', parte);
+                formData.append('arquivo', arquivo);
+
+                const response = await fetch(`${API_BASE_URL}/api/analise/enviar-contrato`, {
+                    method: 'POST',
+                    body: formData // FormData é usado para uploads de arquivo
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    statusMessageArea.textContent = ""; // Limpa a mensagem de status
-                    // Exibir a mensagem de sucesso e esconder o main-content-wrapper
-                    mensagemRetornoOverlay.innerHTML = `
-                        <div class="success-message-container">
-                            <h1>🎉 Análise Solicitada!</h1>
-                            <p>Seu contrato foi enviado com sucesso para análise.</p>
-                            <p>Você receberá o resultado detalhado por e-mail em até <strong>1 hora</strong> (verifique sua caixa de entrada e spam).</p>
-                            <button type="button" class="success-exit-button" onclick="location.reload();">
-                                Concluir
-                            </button>
-                        </div>
-                    `;
-                    document.body.classList.add('show-success-overlay'); // Adiciona a classe para esconder o conteúdo principal
+                if (response.ok && data.status === "success") {
+                    statusMessageArea.textContent = "Contrato enviado com sucesso! Você receberá a análise em breve por e-mail.";
+                    statusMessageArea.style.color = "green";
+                    showSuccessOverlay("Seu contrato foi enviado com sucesso! A análise será enviada para o e-mail cadastrado.");
+                    formulario.reset(); // Limpa o formulário após o envio
+                    toggleForm(false); // Desabilita o formulário novamente após o envio (opcional, dependendo do fluxo)
+                    paymentEmailSection.style.display = 'block'; // Exibe a seção de pagamento novamente (se o usuário puder enviar mais contratos)
+                    checkPaymentStatus(userId); // Re-checa o status, caso o pagamento seja por análise unitária
                 } else {
-                    statusMessageArea.textContent = `Erro ao enviar contrato: ${data.message || "Erro desconhecido"}`;
+                    statusMessageArea.textContent = data.message || "Erro ao enviar o contrato para análise. Tente novamente.";
                     statusMessageArea.style.color = "red";
-                    submitButton.disabled = false;
-                    console.error("Erro na resposta da API:", data);
                 }
             } catch (error) {
-                statusMessageArea.textContent = "Erro na comunicação com o servidor. Tente novamente.";
+                statusMessageArea.textContent = "Ocorreu um erro ao enviar o contrato. Verifique sua conexão ou tente mais tarde.";
                 statusMessageArea.style.color = "red";
-                submitButton.disabled = false;
-                console.error("Erro ao enviar contrato:", error);
+                console.error("Erro no envio do contrato:", error);
+            } finally {
+                submitButton.disabled = false; // Re-habilita o botão de envio
             }
         });
-
-        // Event listeners para validação de e-mail em tempo real
-        emailInput.addEventListener('input', () => {
-            if (!validateEmail(emailInput.value) && emailInput.value.length > 0) {
-                emailError.style.display = "block";
-            } else {
-                emailError.style.display = "none";
-            }
-            // Verifica a coincidência dos e-mails ao digitar em qualquer um dos campos
-            if (confirmEmailInput.value.length > 0) {
-                if (!doEmailsMatch()) {
-                    confirmEmailError.style.display = "block";
-                } else {
-                    confirmEmailError.style.display = "none";
-                }
-            }
-        });
-
-        confirmEmailInput.addEventListener('input', () => {
-            if (confirmEmailInput.value.length > 0) {
-                if (!doEmailsMatch()) {
-                    confirmEmailError.style.display = "block";
-                } else {
-                    confirmEmailError.style.display = "none";
-                }
-            } else {
-                confirmEmailError.style.display = "none"; // Esconde se o campo de confirmação estiver vazio
-            }
-        });
-
     </script>
 </body>
 </html>
