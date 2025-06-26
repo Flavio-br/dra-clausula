@@ -734,7 +734,7 @@
             statusMessageArea.style.color = "#FFD700"; // Amarelo para processamento
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/pagamento/iniciar`, {
+                const response = await fetch(`${API_BASE_URL}/api/pagamento/criar-checkout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
