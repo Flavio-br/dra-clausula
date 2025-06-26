@@ -153,7 +153,6 @@
             text-align: left; /* Alinha labels à esquerda dentro da nova seção */
         }
 
-
         label {
             display: block;
             margin-top: 15px;
@@ -177,6 +176,7 @@
             font-size: 0.9em;
             margin-top: 5px;
             display: none; /* Hidden by default */
+            text-align: left; /* Garante alinhamento esquerdo para mensagens */
         }
 
         button {
@@ -333,7 +333,7 @@
 </head>
 <body>
     <div class="main-content-wrapper">
-        <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
+        <img src="https://placehold.co/600x200/cccccc/333333?text=Dra.+Cláusula+-+IA+de+Análise+de+Contratos" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
 
         <div class="introduction">
             <p>
@@ -466,8 +466,14 @@
             <input type="email" id="confirmEmail" name="confirmEmail" required>
             <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
 
+            <!-- Novo campo para o voucher -->
+            <label for="voucherInput">Caso possua, digite seu Voucher:</label>
+            <input type="text" id="voucherInput" name="voucher">
+            <span id="voucher-message" class="error-message"></span>
+            <!-- Fim do novo campo para o voucher -->
+
             <button type="button" id="paymentButton" class="payment-button">
-                Realizar Pagamento
+                Realizar Pagamento - Apenas R$ 59,90
             </button>
         </div>
         <!-- Fim da nova seção -->
@@ -476,7 +482,6 @@
         <form id="formulario" class="disabled-form">
             <label for="nome">Seu Nome:</label>
             <input type="text" id="nome" name="nome" required>
-            <!-- Os campos de email foram movidos para fora deste formulário -->
             
             <label for="parte">Qual o seu papel no contrato?</label>
             <select id="parte" name="parte" required>
@@ -522,8 +527,13 @@
         const privacyPolicySection = document.getElementById("privacyPolicy");
         const mainContentWrapper = document.querySelector(".main-content-wrapper"); 
 
+        // Novas referências para o campo do voucher
+        const voucherInput = document.getElementById("voucherInput");
+        const voucherMessage = document.getElementById("voucher-message");
+
         // URL BASE DA SUA API NO RENDER - SUBSTITUA PELA URL REAL DA SUA API!
         const API_BASE_URL = "https://contrato-analisador-api.onrender.com"; // Ex: https://dra-clausula-api.onrender.com
+        
         // Gera um user_id único para esta sessão. Isso é armazenado no localStorage para persistir.
         // Em um sistema de login, este user_id viria do login.
         const USER_ID_KEY = 'draClausulaUserId';
@@ -537,6 +547,9 @@
         } else {
             console.log("User ID existente:", userId);
         }
+
+        // Variável para armazenar o preço do item (padrão ou com voucher)
+        let itemPrice = "59.90"; // Preço padrão
 
         // Função para desabilitar/habilitar o formulário principal (questionário)
         function toggleForm(enable) {
@@ -557,6 +570,17 @@
         // Desabilita o formulário principal e o botão de envio ao carregar a página
         toggleForm(false);
 
+        // Função de validação de e-mail
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // Função para verificar se os e-mails de confirmação coincidem
+        function doEmailsMatch() {
+            return emailInput.value === confirmEmailInput.value;
+        }
+
         // Função para verificar o status do pagamento no backend (Firestore)
         async function checkPaymentStatus(currentUserId) {
             try {
@@ -571,6 +595,17 @@
                     statusMessageArea.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
                     statusMessageArea.style.color = "green";
                     paymentButton.style.display = 'none'; // Esconde o botão de pagamento
+                    // Esconde também os campos de e-mail e voucher se o pagamento já foi aprovado
+                    emailInput.style.display = 'none';
+                    confirmEmailInput.style.display = 'none';
+                    voucherInput.style.display = 'none';
+                    // Esconde as labels correspondentes
+                    document.querySelector('label[for="email"]').style.display = 'none';
+                    document.querySelector('label[for="confirmEmail"]').style.display = 'none';
+                    document.querySelector('label[for="voucherInput"]').style.display = 'none';
+                    emailError.style.display = 'none'; // Garante que erros anteriores sejam escondidos
+                    confirmEmailError.style.display = 'none';
+                    voucherMessage.style.display = 'none';
                     return true;
                 } else {
                     statusMessageArea.textContent = "Faça sua Análise"; 
@@ -590,6 +625,32 @@
             }
         }
         
+        // --- Lógica do Voucher ---
+        const VALID_VOUCHER_CODE = "DRA001"; // Código de voucher de exemplo
+        const VOUCHER_PRICE = "0.01"; // Preço quando o voucher é aplicado
+
+        voucherInput.addEventListener('input', () => {
+            const voucherValue = voucherInput.value.trim().toUpperCase(); // Converte para maiúsculas para facilitar a comparação
+            voucherMessage.style.display = "block"; // Exibe a área de mensagem do voucher
+
+            if (voucherValue === VALID_VOUCHER_CODE) {
+                itemPrice = VOUCHER_PRICE; // Define o preço para o valor do voucher
+                voucherMessage.textContent = "Voucher aplicado com sucesso! O valor da análise será R$ " + VOUCHER_PRICE.replace('.', ',');
+                voucherMessage.style.color = "green";
+                paymentButton.textContent = `Realizar Pagamento - Apenas R$ ${VOUCHER_PRICE.replace('.', ',')}`;
+            } else if (voucherValue === "") {
+                itemPrice = "59.90"; // Volta ao preço padrão se o campo estiver vazio
+                voucherMessage.textContent = ""; // Limpa a mensagem
+                voucherMessage.style.display = "none"; // Esconde a área de mensagem
+                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 59,90";
+            } else {
+                itemPrice = "59.90"; // Volta ao preço padrão se o voucher for inválido
+                voucherMessage.textContent = "Voucher inválido. Digite um código válido ou prossiga com o pagamento normal.";
+                voucherMessage.style.color = "red";
+                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 59,90";
+            }
+        });
+
         // Verifica o status do pagamento ao carregar a página
         window.addEventListener('load', () => {
             // Carrega o e-mail do localStorage ao carregar a página
@@ -662,6 +723,7 @@
             // Log para depuração: verifique o valor do e-mail sendo enviado para a API
             console.log("Email a ser enviado para a API de pagamento:", userEmail);
             console.log("User ID a ser enviado para a API de pagamento:", userId);
+            console.log("Preço do item a ser enviado para a API de pagamento:", itemPrice); // Log do preço final
 
             // Salva o e-mail no localStorage antes de prosseguir com o pagamento
             localStorage.setItem(USER_EMAIL_KEY, userEmail);
@@ -675,7 +737,7 @@
                     },
                     body: new URLSearchParams({
                         item_title: "Análise de Contrato Dra. Cláusula",
-                        item_price: "0.01", // PREÇO SINCRONIZADO COM O BACKEND (0.01 CENTAVOS)
+                        item_price: itemPrice, // Agora usa a variável itemPrice
                         user_email: userEmail,
                         user_id: userId // Envia o user_id para o backend
                     })
@@ -686,81 +748,130 @@
                 if (response.ok) {
                     const checkoutUrl = data.checkout_url;
                     if (checkoutUrl) {
-                        statusMessageArea.textContent = "Redirecionando para a página de pagamento do Mercado Pago... Por favor, conclua o pagamento na nova aba e feche-a para retornar.";
-                        statusMessageArea.style.color = "#28a745"; // Verde para redirecionamento
+                        // Abre o checkout do Mercado Pago em uma nova janela/aba
+                        window.open(checkoutUrl, '_blank');
 
-                        // Abre o checkout em uma nova aba.
-                        // O _blank é importante para manter o seu frontend aberto enquanto o usuário paga.
-                        window.open(checkoutUrl, '_blank'); 
-
-                        // --- LÓGICA DE POLLING APÓS REDIRECIONAMENTO ---
-                        statusMessageArea.textContent = "Aguardando confirmação do pagamento... Por favor, conclua o pagamento na nova aba e feche-a para retornar aqui.";
-                        statusMessageArea.style.color = "#FFA500"; // Laranja para status pendente
-
-                        // Inicia o polling para verificar o status do pagamento
-                        let pollInterval = setInterval(async () => {
-                            const paymentConfirmed = await checkPaymentStatus(userId);
-                            if (paymentConfirmed) {
-                                clearInterval(pollInterval); // Para o polling se o pagamento for aprovado
-                                // O formulário já foi habilitado dentro de checkPaymentStatus
+                        // Inicia a verificação de status a cada 3 segundos
+                        const checkInterval = setInterval(async () => {
+                            const paid = await checkPaymentStatus(userId);
+                            if (paid) {
+                                clearInterval(checkInterval); // Para a verificação se o pagamento foi aprovado
+                                console.log("Pagamento aprovado. Intervalo de verificação parado.");
+                                // Exibir a mensagem de sucesso e esconder o main-content-wrapper
+                                mensagemRetornoOverlay.innerHTML = `
+                                    <div class="success-message-container">
+                                        <h1>🚀 Pagamento Confirmado!</h1>
+                                        <p>Sua análise será liberada em breve. Você já pode enviar seu contrato.</p>
+                                        <p>Um e-mail de confirmação foi enviado para <strong>${userEmail}</strong> com os detalhes. Por favor, verifique sua caixa de entrada e spam.</p>
+                                        <button type="button" class="success-exit-button" onclick="location.reload();">
+                                            Concluir e Ir para Análise
+                                        </button>
+                                    </div>
+                                `;
+                                document.body.classList.add('show-success-overlay'); // Adiciona a classe para esconder o conteúdo principal
+                            } else {
+                                // Se não for pago, mas o checkout foi aberto, avisa o usuário para finalizar
+                                statusMessageArea.textContent = "Aguardando confirmação do pagamento. Por favor, conclua a transação no Mercado Pago.";
+                                statusMessageArea.style.color = "blue";
                             }
-                        }, 5000); // Verifica a cada 5 segundos
-                        
-                        // Limpa o polling após um tempo máximo para evitar loops infinitos se algo der errado
-                        setTimeout(() => {
-                            if (pollInterval) {
-                                clearInterval(pollInterval);
-                                if (!formulario.classList.contains('enabled')) {
-                                    statusMessageArea.textContent = "Tempo de espera pelo pagamento esgotado. Por favor, verifique o status ou tente novamente.";
-                                    statusMessageArea.style.color = "red";
-                                    paymentButton.disabled = false;
-                                    paymentButton.style.display = 'block';
-                                }
-                            }
-                        }, 300000); // 5 minutos de espera máxima
-                        // --- FIM DA LÓGICA DE POLLING ---
-
-
+                        }, 3000); // Verifica a cada 3 segundos
                     } else {
-                        statusMessageArea.textContent = "Erro: Link de checkout não recebido do servidor. Contate o suporte.";
+                        statusMessageArea.textContent = "Erro: URL de checkout não recebida.";
                         statusMessageArea.style.color = "red";
-                        paymentButton.disabled = false; // Reabilita o botão
+                        paymentButton.disabled = false;
                     }
                 } else {
-                    statusMessageArea.textContent = data.detail || "Erro ao iniciar pagamento. Tente novamente ou contate o suporte.";
+                    statusMessageArea.textContent = `Erro ao criar checkout: ${data.message || "Erro desconhecido"}`;
                     statusMessageArea.style.color = "red";
-                    paymentButton.disabled = false; // Reabilita o botão
+                    paymentButton.disabled = false;
+                    console.error("Erro na resposta da API de checkout:", data);
                 }
             } catch (error) {
-                statusMessageArea.textContent = "Erro de conexão ao servidor para iniciar pagamento. Verifique sua rede e tente novamente.";
+                statusMessageArea.textContent = "Erro na comunicação com o servidor de pagamento. Tente novamente.";
                 statusMessageArea.style.color = "red";
-                paymentButton.disabled = false; // Reabilita o botão
-                console.error("Erro ao chamar API de pagamento:", error);
+                paymentButton.disabled = false;
+                console.error("Erro na chamada da API de pagamento:", error);
             }
         });
 
-        // Função para validar o formato do e-mail
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(String(email).toLowerCase());
-        }
+        // Event listener para o formulário principal (envio do contrato)
+        formulario.addEventListener("submit", async function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
 
-        // Função para verificar se os e-mails coincidem
-        function doEmailsMatch() {
-            return emailInput.value === confirmEmailInput.value;
-        }
+            // Validação básica dos campos do formulário (nome, papel, arquivo)
+            const nome = document.getElementById("nome").value.trim();
+            const parte = document.getElementById("parte").value;
+            const arquivoInput = document.getElementById("arquivo");
+            const arquivo = arquivoInput.files[0];
 
-        // Event listener para o campo de e-mail principal (valida enquanto digita)
-        emailInput.addEventListener("input", function() {
-            if (emailInput.value.trim() === "") {
-                emailError.style.display = "none"; // Esconde erro se o campo ficar vazio
-            } else if (!validateEmail(emailInput.value)) {
+            if (!nome || !parte || !arquivo) {
+                statusMessageArea.textContent = "Por favor, preencha todos os campos do formulário (Nome, Papel e Anexo do Contrato).";
+                statusMessageArea.style.color = "red";
+                return;
+            }
+
+            if (arquivo.size > 20 * 1024 * 1024) { // Limite de 20 MB
+                statusMessageArea.textContent = "O arquivo é muito grande. Por favor, envie um arquivo de até 20MB.";
+                statusMessageArea.style.color = "red";
+                return;
+            }
+
+            statusMessageArea.textContent = "Enviando contrato para análise... Por favor, aguarde.";
+            statusMessageArea.style.color = "#3498db"; // Azul para status de carregamento
+            submitButton.disabled = true; // Desabilita o botão para evitar múltiplos envios
+
+            const formData = new FormData();
+            formData.append("user_id", userId);
+            formData.append("user_email", localStorage.getItem(USER_EMAIL_KEY)); // Pega o e-mail do localStorage
+            formData.append("user_name", nome);
+            formData.append("user_role_in_contract", parte);
+            formData.append("contract_file", arquivo);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analisar-contrato`, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusMessageArea.textContent = ""; // Limpa a mensagem de status
+                    // Exibir a mensagem de sucesso e esconder o main-content-wrapper
+                    mensagemRetornoOverlay.innerHTML = `
+                        <div class="success-message-container">
+                            <h1>🎉 Análise Solicitada!</h1>
+                            <p>Seu contrato foi enviado com sucesso para análise.</p>
+                            <p>Você receberá o resultado detalhado por e-mail em até <strong>1 hora</strong> (verifique sua caixa de entrada e spam).</p>
+                            <button type="button" class="success-exit-button" onclick="location.reload();">
+                                Concluir
+                            </button>
+                        </div>
+                    `;
+                    document.body.classList.add('show-success-overlay'); // Adiciona a classe para esconder o conteúdo principal
+                } else {
+                    statusMessageArea.textContent = `Erro ao enviar contrato: ${data.message || "Erro desconhecido"}`;
+                    statusMessageArea.style.color = "red";
+                    submitButton.disabled = false;
+                    console.error("Erro na resposta da API:", data);
+                }
+            } catch (error) {
+                statusMessageArea.textContent = "Erro na comunicação com o servidor. Tente novamente.";
+                statusMessageArea.style.color = "red";
+                submitButton.disabled = false;
+                console.error("Erro ao enviar contrato:", error);
+            }
+        });
+
+        // Event listeners para validação de e-mail em tempo real
+        emailInput.addEventListener('input', () => {
+            if (!validateEmail(emailInput.value) && emailInput.value.length > 0) {
                 emailError.style.display = "block";
             } else {
                 emailError.style.display = "none";
             }
-
-            if (confirmEmailInput.value.trim() !== "") {
+            // Verifica a coincidência dos e-mails ao digitar em qualquer um dos campos
+            if (confirmEmailInput.value.length > 0) {
                 if (!doEmailsMatch()) {
                     confirmEmailError.style.display = "block";
                 } else {
@@ -769,163 +880,18 @@
             }
         });
 
-        // Event listener para o campo de confirmação de e-mail (valida enquanto digita)
-        confirmEmailInput.addEventListener("input", function() {
-            if (confirmEmailInput.value.trim() === "") {
-                confirmEmailError.style.display = "none"; // Esconde erro se o campo ficar vazio
-            } else if (!doEmailsMatch()) {
-                confirmEmailError.style.display = "block";
-            } else {
-                confirmEmailError.style.display = "none";
-            }
-        });
-
-        formulario.addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            // Garante que o formulário só pode ser submetido se estiver habilitado (após "pagamento")
-            if (!formulario.classList.contains('enabled')) {
-                statusMessageArea.textContent = "Por favor, realize o pagamento para enviar a análise.";
-                statusMessageArea.style.color = "red";
-                return;
-            }
-
-            // Validações de e-mail ao submeter o formulário (redundante, mas seguro se o usuário puder editar)
-            if (!validateEmail(emailInput.value)) {
-                emailError.style.display = "block";
-                statusMessageArea.textContent = "Por favor, insira um e-mail válido no campo 'Seu E-mail'.";
-                statusMessageArea.style.color = "red";
-                return;
-            } else {
-                emailError.style.display = "none";
-            }
-
-            if (!doEmailsMatch()) {
-                confirmEmailError.style.display = "block";
-                statusMessageArea.textContent = "Os e-mails inseridos não coincidem. Por favor, verifique.";
-                statusMessageArea.style.color = "red";
-                return;
-            } else {
-                confirmEmailError.style.display = "none";
-            }
-            
-            // Certifique-se de que o user_id e o email sejam enviados também com a análise do contrato
-            const formData = new FormData(formulario); 
-            formData.append('user_id', userId);
-            formData.append('email', emailInput.value); 
-
-            statusMessageArea.textContent = "Processando sua análise... Por favor, aguarde.";
-            statusMessageArea.style.color = "#3498db";
-            submitButton.disabled = true; // Desabilita o botão de envio durante o processamento
-
-            try {
-                const resposta = await fetch(`${API_BASE_URL}/api/contrato/analisar`, {
-                    method: "POST",
-                    body: formData
-                });
-
-                const resultado = await resposta.json();
-
-                if (resposta.ok) {
-                    // Se o envio do contrato for um sucesso, carrega o email-sucesso.html
-                    try {
-                        const successHtmlResponse = await fetch("email-sucesso.html");
-                        if (successHtmlResponse.ok) {
-                            const successHtmlContent = await successHtmlResponse.text();
-                            mensagemRetornoOverlay.innerHTML = successHtmlContent;
-                            // Adiciona a classe ao body para esconder o conteúdo principal e mostrar o overlay
-                            document.body.classList.add('show-success-overlay'); 
-                            statusMessageArea.textContent = ""; // Limpa a mensagem de status da área normal
-                            console.log("email-sucesso.html carregado e exibido com sucesso.");
-
-                            // ADICIONA EVENT LISTENER AO BOTÃO 'SAIR' APÓS CARREGAR O HTML
-                            const exitButton = document.getElementById("exitSuccessButton");
-                            if (exitButton) {
-                                exitButton.addEventListener("click", function() {
-                                    mensagemRetornoOverlay.innerHTML = ''; // Limpa o conteúdo do overlay
-                                    document.body.classList.remove('show-success-overlay'); // Remove a classe do body
-                                    formulario.reset(); // Reseta o formulário
-                                    emailInput.value = ''; // Limpa os campos de email
-                                    confirmEmailInput.value = '';
-                                    
-                                    // --- LÓGICA PARA REQUERER NOVO PAGAMENTO ---
-                                    localStorage.removeItem(USER_ID_KEY); // Remove o user_id do localStorage
-                                    localStorage.removeItem(USER_EMAIL_KEY); // Remove o e-mail do localStorage
-                                    userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); // Gera um novo user_id
-                                    localStorage.setItem(USER_ID_KEY, userId); // Salva o novo user_id
-                                    console.log("Novo User ID gerado após clique em 'Sair': ", userId);
-                                    checkPaymentStatus(userId); // Reavalia o status de pagamento para desabilitar o form
-                                    // --- FIM DA LÓGICA ---
-
-                                    console.log("Botão 'Sair' clicado. Formulário resetado e status de pagamento verificado.");
-                                });
-                            } else {
-                                console.error("Botão 'exitSuccessButton' não encontrado após carregar email-sucesso.html. O fluxo pode não ser resetado corretamente.");
-                                // Fallback para resetar o estado se o botão não for encontrado, embora a interação não seja a ideal
-                                mensagemRetornoOverlay.innerHTML = '';
-                                document.body.classList.remove('show-success-overlay');
-                                formulario.reset(); 
-                                emailInput.value = '';
-                                confirmEmailInput.value = '';
-                                localStorage.removeItem(USER_ID_KEY); 
-                                localStorage.removeItem(USER_EMAIL_KEY);
-                                userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
-                                localStorage.setItem(USER_ID_KEY, userId); 
-                                console.log("Novo User ID gerado após análise (fallback - botão não encontrado): ", userId);
-                                checkPaymentStatus(userId); 
-                                statusMessageArea.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Botão de saída não encontrado)";
-                                statusMessageArea.style.color = "orange";
-                            }
-
-                        } else {
-                            // Fallback if email-sucesso.html cannot be loaded (e.g., 404, 500)
-                            statusMessageArea.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro ao carregar layout de sucesso: Status " + successHtmlResponse.status + ")";
-                            statusMessageArea.style.color = "orange"; // Changed color for this specific fallback
-                            console.error("Falha ao carregar email-sucesso.html. Status:", successHtmlResponse.status, "URL:", successHtmlResponse.url);
-                            // Reseta o formulário e o estado mesmo com erro no layout de sucesso
-                            formulario.reset(); 
-                            emailInput.value = '';
-                            confirmEmailInput.value = '';
-                            localStorage.removeItem(USER_ID_KEY); 
-                            localStorage.removeItem(USER_EMAIL_KEY);
-                            userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
-                            localStorage.setItem(USER_ID_KEY, userId); 
-                            console.log("Novo User ID gerado após análise (fallback 2): ", userId);
-                            checkPaymentStatus(userId); 
-                        }
-                    } catch (fetchError) {
-                        // Fallback if there's a network error during the fetch of email-sucesso.html
-                        console.error("Erro de rede ao carregar email-sucesso.html:", fetchError);
-                        statusMessageArea.textContent = "Contrato enviado com sucesso! Aguarde o e-mail com a análise. (Erro de rede ao carregar layout)";
-                        statusMessageArea.style.color = "orange"; // Changed color for this specific fallback
-                        // Reseta o formulário e o estado mesmo com erro de rede
-                        formulario.reset(); 
-                        emailInput.value = '';
-                        confirmEmailInput.value = ''; 
-                        localStorage.removeItem(USER_ID_KEY); 
-                        localStorage.removeItem(USER_EMAIL_KEY);
-                        userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15); 
-                        localStorage.setItem(USER_ID_KEY, userId); 
-                        console.log("Novo User ID gerado após análise (fallback 3): ", userId);
-                        checkPaymentStatus(userId); 
-                    }
-
+        confirmEmailInput.addEventListener('input', () => {
+            if (confirmEmailInput.value.length > 0) {
+                if (!doEmailsMatch()) {
+                    confirmEmailError.style.display = "block";
                 } else {
-                    let erroLimpo = resultado.detail || resultado.erro; // Prioriza 'detail' de HTTPException
-                    if (typeof erroLimpo === 'string') {
-                        erroLimpo = erroLimpo.replace(/^```html\s*/, '').trim();
-                        erroLimpo = erroLimpo.replace(/\s*```$/, '').trim(); 
-                    }
-                    statusMessageArea.textContent = erroLimpo || "Erro ao enviar análise.";
-                    statusMessageArea.style.color = "red";
+                    confirmEmailError.style.display = "none";
                 }
-            } catch (erro) {
-                statusMessageArea.textContent = "Erro de conexão com o servidor de análise.";
-                statusMessageArea.style.color = "red";
-            } finally {
-                submitButton.disabled = false; // Reabilita o botão de envio no final
+            } else {
+                confirmEmailError.style.display = "none"; // Esconde se o campo de confirmação estiver vazio
             }
         });
+
     </script>
 </body>
 </html>
