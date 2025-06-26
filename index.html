@@ -796,8 +796,7 @@
             statusMessageArea.style.color = "#FFD700"; // Amarelo para envio
             submitButton.disabled = true; // Desabilita o botão de envio
 
-            // Simulação de envio para a API (substitua pela sua lógica real de upload)
-            // Você precisaria de um endpoint na sua API para receber o arquivo e os dados do formulário
+            // Altere o endpoint de volta para /api/contrato/analisar
             try {
                 const formData = new FormData();
                 formData.append('user_id', userId);
@@ -806,7 +805,7 @@
                 formData.append('parte', parte);
                 formData.append('arquivo', arquivo);
 
-                const response = await fetch(`${API_BASE_URL}/api/analise/enviar-contrato`, {
+                const response = await fetch(`${API_BASE_URL}/api/contrato/analisar`, { // Endpoint corrigido
                     method: 'POST',
                     body: formData // FormData é usado para uploads de arquivo
                 });
@@ -819,7 +818,8 @@
                     showSuccessOverlay("Seu contrato foi enviado com sucesso! A análise será enviada para o e-mail cadastrado.");
                     formulario.reset(); // Limpa o formulário após o envio
                     toggleForm(false); // Desabilita o formulário novamente após o envio (opcional, dependendo do fluxo)
-                    paymentEmailSection.style.display = 'block'; // Exibe a seção de pagamento novamente (se o usuário puder enviar mais contratos)
+                    // Não mostra a seção de pagamento, pois o pagamento já foi feito/voucher aplicado
+                    paymentButton.style.display = 'none'; // Garante que o botão de pagamento continue oculto
                     checkPaymentStatus(userId); // Re-checa o status, caso o pagamento seja por análise unitária
                 } else {
                     statusMessageArea.textContent = data.message || "Erro ao enviar o contrato para análise. Tente novamente.";
