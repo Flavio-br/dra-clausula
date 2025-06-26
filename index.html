@@ -293,6 +293,15 @@
             color: #2c3e50; 
         }
 
+        /* ESTILO PARA O INDICADOR DE VERSÃO */
+        #version-indicator {
+            text-align: right;
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 15px; /* Espaço acima da versão */
+            padding-right: 5px; /* Pequeno padding para não colar na borda */
+        }
+
         /* MEDIA QUERIES - RESPONSIVIDADE         */
         /* ======================================= */
 
@@ -504,6 +513,9 @@
 
             <button type="submit" id="submitButton" disabled>Enviar para Análise</button>
         </form>
+        
+        <!-- Adição do indicador de versão -->
+        <div id="version-indicator">v.1.01</div>
     </div> <!-- Fim de .main-content-wrapper -->
 
     <div id="status-message-area"></div> <!-- Nova div para mensagens de status/erro -->
@@ -575,10 +587,11 @@
             return emailInput.value === confirmEmailInput.value;
         }
 
-        function showSuccessOverlay(messageHtml) {
+        // Função para exibir a mensagem de sucesso (agora com título dinâmico)
+        function showSuccessOverlay(titleHtml, messageHtml) {
             mensagemRetornoOverlay.innerHTML = `
                 <div class="success-message-container">
-                    <h1>🎉 Pagamento Confirmado! 🎉</h1>
+                    <h1>${titleHtml}</h1>
                     <p>${messageHtml}</p>
                     <button class="success-exit-button">Voltar ao Início</button>
                 </div>
@@ -592,7 +605,20 @@
                 mensagemRetornoOverlay.style.opacity = '0';
                 mensagemRetornoOverlay.innerHTML = '';
                 document.body.classList.remove('show-success-overlay');
-                window.location.reload(); 
+                
+                // --- NOVO: Resetar o estado do site para o estado inicial de "não pago" ---
+                emailInput.value = ''; // Limpa o e-mail
+                confirmEmailInput.value = ''; // Limpa a confirmação de e-mail
+                localStorage.removeItem(USER_EMAIL_KEY); // Remove o e-mail do localStorage
+                voucherInput.value = ''; // Limpa o voucher
+                itemPrice = "59.90"; // Reseta o preço
+                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 59,90"; // Reseta o texto do botão de pagamento
+                paymentButton.style.display = 'block'; // Mostra o botão de pagamento
+                paymentButton.disabled = false; // Garante que o botão de pagamento esteja habilitado
+                toggleForm(false); // Desabilita o formulário principal
+                statusMessageArea.textContent = "Faça sua Análise"; // Reseta a mensagem de status
+                statusMessageArea.style.color = "orange"; // Reseta a cor da mensagem de status
+                // --- FIM DO NOVO RESET ---
             });
         }
 
@@ -734,7 +760,6 @@
             statusMessageArea.style.color = "#FFD700";
 
             try {
-                // CONSTRUÇÃO DE FORM_DATA PARA O BACKEND (AGORA CORRETO)
                 const formData = new FormData();
                 formData.append('user_id', userId);
                 formData.append('user_email', emailInput.value);
@@ -760,11 +785,11 @@
                     paymentButton.style.display = 'none'; 
                     toggleForm(true); 
 
-                    showSuccessOverlay("Seu voucher foi aplicado com sucesso! Agora você pode prosseguir para enviar seu contrato para análise.");
+                    // Título e mensagem para sucesso de Voucher
+                    showSuccessOverlay("✅ Voucher Aplicado com Sucesso! ✅", "Seu voucher foi aplicado com sucesso! Agora você pode prosseguir para enviar seu contrato para análise.");
 
                 } else {
-                    // Prioriza 'detail' (do HTTPException do FastAPI), depois 'message', caso contrário uma mensagem padrão
-                    statusMessageArea.textContent = data.detail || data.message || "Erro ao iniciar o pagamento. Tente novamente.";
+                    statusMessageArea.textContent = data.detail || data.message || "Erro ao iniciar o pagamento. Tente novamente."; 
                     statusMessageArea.style.color = "red";
                     paymentButton.disabled = false;
                 }
@@ -809,17 +834,19 @@
 
                 const data = await response.json();
 
-                // CORREÇÃO: VERIFICAR A CHAVE 'mensagem' para sucesso, conforme o backend
-                if (response.ok && data.mensagem) { // Sua API retorna {"mensagem": "..."}
+                if (response.ok && data.mensagem) { 
                     statusMessageArea.textContent = data.mensagem; 
                     statusMessageArea.style.color = "green";
-                    showSuccessOverlay("Seu contrato foi enviado com sucesso! A análise será enviada para o e-mail cadastrado.");
-                    formulario.reset();
-                    toggleForm(false);
-                    paymentButton.style.display = 'none'; // Garante que o botão de pagamento continue oculto
-                    checkPaymentStatus(userId);
+                    // Atualizado: Título e mensagem detalhada para sucesso de Análise de Contrato
+                    const emailSuccessMessage = `
+                        <p>Sua análise do contrato pela Dra. Cláusula foi concluída e enviada para o e-mail informado.</p>
+                        <p>Caso não encontre na sua caixa de entrada, verifique também a pasta de spam ou lixo eletrônico.</p>
+                        <p>Se não receber em até alguns minutos, entre em contato conosco pelo e-mail: draclausula@gmail.com</p>
+                    `;
+                    showSuccessOverlay("✅ Análise Enviada com Sucesso! ✅", emailSuccessMessage);
+                    formulario.reset(); // Limpa o formulário do contrato
+                    // O reset completo do site para o estado inicial é feito dentro de showSuccessOverlay no clique do botão "Voltar ao Início"
                 } else {
-                    // Se houver um 'detail' (do HTTPException do FastAPI) ou 'erro' (seu JSON original de erro), usa-o
                     statusMessageArea.textContent = data.detail || data.erro || "Erro ao enviar o contrato para análise. Tente novamente.";
                     statusMessageArea.style.color = "red";
                 }
